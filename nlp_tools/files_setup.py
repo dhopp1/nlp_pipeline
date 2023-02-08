@@ -39,3 +39,6 @@ def generate_metadata_file(data_path, metadata_addt_column_names):
         metadata = pd.read_csv(f"{data_path}metadata.csv")
         metadata.text_id = range(1, len(metadata) + 1) # ensure creation of a unique text id field
     return metadata
+
+def download_document(web_filepath):
+    

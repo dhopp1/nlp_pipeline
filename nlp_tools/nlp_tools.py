@@ -26,12 +26,8 @@ class nlp_processor:
         
         # generating metadata file
         self.files_setup.generate_metadata_file(self.data_path, self.metadata_addt_column_names)
+        self.metadata = pd.read_csv(f"{data_path}metadata.csv")
         
-    def internal_function():
-        """does thing
-        parameters:
-            :thing: str: description
-        output:
-            :output: str: thing
-        """
-        print(1)
+    def refresh_metadata(self):
+        "update the metadata of the processor in case changes are made to the file outside of the object"
+        self.metadata = pd.read_csv(f"{self.data_path}metadata.csv")
