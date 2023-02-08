@@ -17,6 +17,10 @@ def setup_directories(data_path):
     if not os.path.isdir(f"{data_path}txt_files/"):
         os.makedirs(f"{data_path}txt_files/")
         
+    # path for potential transformed .txt files, e.g., stemmed, stopwords removed, etc.
+    if not os.path.isdir(f"{data_path}transformed_txt_files/"):
+        os.makedirs(f"{data_path}transformed_txt_files/")
+        
     # path for transformed data CSVs
     if not os.path.isdir(f"{data_path}csv_outputs/"):
         os.makedirs(f"{data_path}csv_outputs/")
