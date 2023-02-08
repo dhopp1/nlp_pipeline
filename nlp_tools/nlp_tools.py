@@ -46,10 +46,10 @@ class nlp_processor:
             web_filepath = self.metadata.loc[lambda x: x.text_id == text_id, "web_filepath"].values[0]
             tmp_metadata = self.files_setup.download_document(self.metadata, self.data_path, text_id, web_filepath)
             
-        # update the object's metadata
-        if not(tmp_metadata is None):
-            self.metadata = tmp_metadata
-            self.metadata.to_csv(f"{self.data_path}metadata.csv", index = False)
+            # update the object's metadata
+            if not(tmp_metadata is None):
+                self.metadata = tmp_metadata
+                self.metadata.to_csv(f"{self.data_path}metadata.csv", index = False)
 
     def convert_to_text(self, text_ids):
         "convert a pdf or html file to text. Pass either single text id or list of them"
@@ -62,7 +62,7 @@ class nlp_processor:
             
             tmp_metadata = self.files_setup.convert_to_text(self.metadata, self.data_path, text_id)
             
-        # update the object's metadata
-        if not(tmp_metadata is None):
-            self.metadata = tmp_metadata
-            self.metadata.to_csv(f"{self.data_path}metadata.csv", index = False)
+            # update the object's metadata
+            if not(tmp_metadata is None):
+                self.metadata = tmp_metadata
+                self.metadata.to_csv(f"{self.data_path}metadata.csv", index = False)
