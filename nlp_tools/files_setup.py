@@ -2,7 +2,12 @@ import pandas as pd
 import requests
 from PyPDF2 import PdfReader
 from bs4 import BeautifulSoup
-import os
+import pytesseract
+import platform
+from pdf2image import convert_from_path
+from pathlib import Path
+from PIL import Image
+import os, glob
 
 def setup_directories(data_path):
     "setup requied and standardized directory structure"
@@ -81,7 +86,53 @@ def parse_pdf(pdf_path):
         return_text += "[newpage] " + reader.pages[i].extract_text()
         
     return return_text
+
+def parse_ocr_pdf(data_path, pdf_path, windows_tesseract_path = None, windows_poppler_path = None):
+    """convert a scanned PDF to text and return text string. From https://www.geeksforgeeks.org/python-reading-contents-of-pdf-using-ocr-optical-character-recognition/
+    parameters:
+        :data_path: str: filepath where all files will be created and stored
+        :pdf_path: str: path of the pdf file
+        :windows_tesseract_path: str: path of tesseract .exe file (https://linuxhint.com/install-tesseract-windows/)
+        :windows_poppler_path: str: path of poppler .exe file (https://blog.alivate.com.au/poppler-windows/)
+    """
+    if platform.system() == "Windows":
+        pytesseract.pytesseract.tesseract_cmd = (
+            windows_tesseract_path
+        )
+    # storing image files temporarily
+    PDF_file = Path(pdf_path)
+    image_file_list = []
+    if platform.system() == "Windows":
+        pdf_pages = convert_from_path(
+            PDF_file, 500, poppler_path = windows_poppler_path
+        )
+    else:
+        pdf_pages = convert_from_path(PDF_file, 500)
         
+    # iterate through pages
+    for page_enumeration, page in enumerate(pdf_pages, start=1):
+        # Create a file name to store the image
+        filename = f"{data_path}\page_{page_enumeration:03}.jpg"
+ 
+        # Save the image of the page in system
+        page.save(filename, "JPEG")
+        image_file_list.append(filename)
+        # Save the image of the page in system
+        page.save(filename, "JPEG")
+        image_file_list.append(filename)
+        
+    # Iterate from 1 to total number of pages
+    return_text = ""
+    for image_file in image_file_list:
+        text = str(((pytesseract.image_to_string(Image.open(image_file)))))
+        text = text.replace("-\n", "")
+ 
+        # Finally, write the processed text to the file.
+        return_text += "[newpage] " + text
+    
+    return return_text
+        
+
 def parse_html(html_path):
     "parse an html file and return text string"
     file = open(html_path, "r", encoding = "UTF-8")
@@ -104,7 +155,7 @@ def parse_html(html_path):
     return return_text
     
         
-def convert_to_text(metadata, data_path, text_id):
+def convert_to_text(metadata, data_path, text_id, windows_tesseract_path = None, windows_poppler_path = None):
     "convert a PDF or HTML file into raw text. In PDFs, new pages encoded with '[newpage]'"
     raw_path = metadata.loc[lambda x: x.text_id == text_id, "local_raw_filepath"].values[0]
     # path exists (not nan) and is longer than 0
@@ -118,6 +169,11 @@ def convert_to_text(metadata, data_path, text_id):
             # pdf file
             if ".pdf" in raw_path:
                 return_text = parse_pdf(raw_path)
+                if len(set(return_text.split("[newpage] "))) == 1: # if only empties, scan, needs to be OCR converted
+                    return_text = parse_ocr_pdf(data_path, raw_path, windows_tesseract_path, windows_poppler_path)
+                    # remove temporary image files from OCR
+                    for f in glob.glob(f"{data_path}*.jpg"):
+                        os.remove(f)
             elif ".html" in raw_path:
                 return_text = parse_html(raw_path)
             

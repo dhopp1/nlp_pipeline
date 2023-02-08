@@ -10,16 +10,22 @@ class nlp_processor:
     parameters:
         :data_path: str: filepath where all files will be created and stored. Will be created if doesn't already exist. Pass absolute directory.
         :metadata_addt_column_names: list: list of additional file names relevant for the analysis, e.g., publication date, title
+        :windows_tesseract_path: str: tesseract .exe file path in windows for OCR conversion
+        :windows_poppler_path: str: poppler /bin file path in windows for OCR conversion
     """
     
     def __init__(
         self,
         data_path,
-        metadata_addt_column_names
+        metadata_addt_column_names,
+        windows_tesseract_path = None, 
+        windows_poppler_path = None
     ):
         # initializing parameters
         self.data_path = data_path
         self.metadata_addt_column_names = metadata_addt_column_names
+        self.windows_tesseract_path = windows_tesseract_path
+        self.windows_poppler_path = windows_poppler_path
         
         # setting up directory structure
         self.files_setup = import_module("nlp_tools.files_setup")
@@ -60,7 +66,7 @@ class nlp_processor:
             print(f"converting to text: file {counter}/{len(text_ids)}")
             counter += 1
             
-            tmp_metadata = self.files_setup.convert_to_text(self.metadata, self.data_path, text_id)
+            tmp_metadata = self.files_setup.convert_to_text(self.metadata, self.data_path, text_id, self.windows_tesseract_path, self.windows_poppler_path)
             
             # update the object's metadata
             if not(tmp_metadata is None):
