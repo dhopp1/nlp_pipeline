@@ -1,6 +1,7 @@
 from importlib import import_module
 import numpy as np
 import pandas as pd
+import requests
 
 import nlp_tools.files_setup
 
@@ -31,3 +32,22 @@ class nlp_processor:
     def refresh_metadata(self):
         "update the metadata of the processor in case changes are made to the file outside of the object"
         self.metadata = pd.read_csv(f"{self.data_path}metadata.csv")
+        self.files_setup.generate_metadata_file(self.data_path, self.metadata_addt_column_names) # make sure text_id added
+        
+    def download_text_id(self, text_ids):
+        "download a file from a URL and update the metadata file. Pass either single text id or list of them"
+        if type(text_ids) != list:
+            text_ids = [text_ids]
+        counter = 1
+        for text_id in text_ids:
+            print(f"downloading file {counter}/{len(text_ids)}")
+            counter += 1
+            
+            web_filepath = self.metadata.loc[lambda x: x.text_id == text_id, "web_filepath"].values[0]
+            tmp_metadata = self.files_setup.download_document(self.metadata, self.data_path, text_id, web_filepath)
+            
+        # update the object's metadata
+        if not(tmp_metadata is None):
+            self.metadata = tmp_metadata
+            self.metadata.to_csv(f"{self.data_path}metadata.csv", index = False)
+
