@@ -37,6 +37,9 @@ class nlp_processor:
         # making text transformations available
         self.text_transformation = import_module("nlp_tools.text_transformation")
         
+        # making visualizations available
+        self.visualizations = import_module("nlp_tools.visualizations")
+        
     def refresh_metadata(self):
         "update the metadata of the processor in case changes are made to the file outside of the object"
         self.metadata = pd.read_csv(f"{self.data_path}metadata.csv")
@@ -168,3 +171,22 @@ class nlp_processor:
                 csv.loc[csv.text_id == text_id, "word_count_dict"] = str(word_dict)
                 csv.to_csv(csv_path, index = False)
             
+    def bar_plot_word_count(self, text_ids, path_prefix, n_words=10, title=""):
+        """bar plot of top words occurring in text(s)
+        parameters:
+            :text_ids: list[float]: single text_id or list of them to perform the transformation(s) on
+            :path_prefix: str: what the prefix of the files in the transformed_txt_files/ path is
+            :n_words: int: top n words to show in the plot
+            :title: str: title of the plot if desired
+        """
+        if type(text_ids) != list:
+            text_ids = [text_ids]
+        
+        # only do if dataframe exists
+        csv_path = f"{self.data_path}csv_outputs/{path_prefix}word_counts.csv"
+        if os.path.exists(csv_path):
+            csv = pd.read_csv(csv_path).loc[lambda x: x.text_id.isin(text_ids), :].reset_index(drop=True)
+            df = self.visualizations.convert_word_count_dict_to_df(csv)
+            p, plot_data = self.visualizations.bar_plot_word_count(df, n_words, title)
+            
+            return (p, plot_data)
