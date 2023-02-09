@@ -7,6 +7,7 @@ import platform
 from pdf2image import convert_from_path
 from pathlib import Path
 from PIL import Image
+from langdetect import detect
 import os, glob
 
 def setup_directories(data_path):
@@ -43,7 +44,7 @@ def generate_metadata_file(data_path, metadata_addt_column_names):
     # only create the file if it doesn't exist already
     if not(os.path.isfile(f"{data_path}metadata.csv")):
         metadata = pd.DataFrame(
-            columns = ["text_id", "web_filepath", "local_raw_filepath", "local_txt_filepath"] + metadata_addt_column_names   
+            columns = ["text_id", "web_filepath", "local_raw_filepath", "local_txt_filepath", "detected_language"] + metadata_addt_column_names   
         )
         metadata.to_csv(f"{data_path}metadata.csv", index=False)
     else:
@@ -55,28 +56,31 @@ def generate_metadata_file(data_path, metadata_addt_column_names):
 def download_document(metadata, data_path, text_id, web_filepath):
     "download a file from a URL and update the metadata file"
     
-    # first check if this file already downloaded
-    if not(os.path.isfile(f"{data_path}raw_files/{text_id}.html")) and not(os.path.isfile(f"{data_path}raw_files/{text_id}.pdf")):
-        response = requests.get(web_filepath)
-        content_type = response.headers.get('content-type')
-        
-        if "application/pdf" in content_type:
-            ext = ".pdf"
-        elif "text/html" in content_type:
-            ext = ".html"
-        else:
-            ext = ""
-        
-        if ext != "":
-            file = open(f"{data_path}raw_files/{text_id}{ext}", "wb+")
-            file.write(response.content)
-            file.close()
+    if str(web_filepath) == "" or str(web_filepath) == "nan":
+        return None
+    else:
+        # first check if this file already downloaded
+        if not(os.path.isfile(f"{data_path}raw_files/{text_id}.html")) and not(os.path.isfile(f"{data_path}raw_files/{text_id}.pdf")):
+            response = requests.get(web_filepath)
+            content_type = response.headers.get('content-type')
             
-            metadata.loc[metadata.text_id == text_id, "local_raw_filepath"] = f"{data_path}raw_files/{text_id}{ext}"
-            return metadata
-        else:
-            return None
-        
+            if "application/pdf" in content_type:
+                ext = ".pdf"
+            elif "text/html" in content_type:
+                ext = ".html"
+            else:
+                ext = ""
+            
+            if ext != "":
+                file = open(f"{data_path}raw_files/{text_id}{ext}", "wb+")
+                file.write(response.content)
+                file.close()
+                
+                metadata.loc[metadata.text_id == text_id, "local_raw_filepath"] = f"{data_path}raw_files/{text_id}{ext}"
+                return metadata
+            else:
+                return None
+            
         
 def parse_pdf(pdf_path):
     "parse a pdf and return text string"
@@ -153,6 +157,11 @@ def parse_html(html_path):
     return_text = '\n'.join(chunk for chunk in chunks if chunk)
     
     return return_text
+
+
+def detect_language(stringx):
+    "determine the language of a string"
+    return detect(stringx)
     
         
 def convert_to_text(metadata, data_path, text_id, windows_tesseract_path = None, windows_poppler_path = None):
@@ -184,6 +193,7 @@ def convert_to_text(metadata, data_path, text_id, windows_tesseract_path = None,
             
             # update metadata file
             metadata.loc[lambda x: x.text_id == text_id, "local_txt_filepath"] = f"{data_path}txt_files/{text_id}.txt"
+            metadata.loc[lambda x: x.text_id == text_id, "detected_language"] = detect(return_text)
             final_return = metadata
         else:
             final_return = None

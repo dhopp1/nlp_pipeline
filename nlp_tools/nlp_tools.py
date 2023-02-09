@@ -96,9 +96,7 @@ class nlp_processor:
             :perform_remove_punctuation: boolean: whether or not to remove punctuation, except for |'s
             :perform_remove_stopwords: boolean: whether or not to remove stopwords
             :perform_stemming: boolean: whether or not to perform stemming
-            :stopwords_language: str: if choosing to remove stopwords, desired language. Available ones here: https://stackoverflow.com/questions/54573853/nltk-available-languages-for-stopwords
-            :stemmer: if choosing to stem, nltk stemmer. E.g., nltk.stem.snowball.SnowballStemmer("english"), or string of "snowball" or "lancaster" for one of these two in English
-            :stemmer_language: str: if choosing to stem, desired language. Available languages for e.g. Snowball stemmer available with print(" ".join(SnowballStemmer.languages))
+            :stemmer: if choosing to stem, nltk stemmer. E.g., nltk.stem.snowball.SnowballStemmer("english"), or string of "snowball" or "lancaster" for one of these. Lancaster only works in english
         """
         if type(text_ids) != list:
             text_ids = [text_ids]
@@ -106,6 +104,7 @@ class nlp_processor:
         for text_id in text_ids:
             print(f"transforming text: {counter}/{len(text_ids)}")
             text_path = self.metadata.loc[lambda x: x.text_id == text_id, "local_txt_filepath"].values[0]
+            language = self.metadata.loc[lambda x: x.text_id == text_id, "detected_language"].values[0]
             
             # only perform if text file exists
             if (".txt" in str(text_path)):
@@ -121,9 +120,9 @@ class nlp_processor:
                 if perform_remove_punctuation:
                     stringx = self.text_transformation.remove_punctuation(stringx)
                 if perform_remove_stopwords:
-                    stringx = self.text_transformation.remove_stopwords(stringx, stopwords_language)
+                    stringx = self.text_transformation.remove_stopwords(stringx, language)
                 if perform_stemming:
-                    stringx = self.text_transformation.stem(stringx, stemmer, stemmer_language)
+                    stringx = self.text_transformation.stem(stringx, stemmer, language)
                 
                 # write text file
                 file = open(f"{self.data_path}transformed_txt_files/{path_prefix}{text_id}.txt", "wb+")

@@ -6,6 +6,38 @@ from nltk.stem.snowball import SnowballStemmer
 from nltk.stem.lancaster import LancasterStemmer
 import os
 
+# key between langdetect language ISO code and NLTK's names for snowball and stopwords
+nltk_langdetect_dict = {
+    'ar':'arabic',
+    'az':'azerbaijani',
+    'eu':'basque',
+    'bn':'bengali',
+    'ca':'catalan',
+    'zh':'chinese',
+    'da':'danish',
+    'nl':'dutch',
+    'en':'english',
+    'fi':'finnish',
+    'fr':'french',
+    'de':'german',
+    'el':'greek',
+    'he':'hebrew',
+    'hu':'hungarian',
+    'id':'indonesian',
+    'it':'italian',
+    'kk':'kazakh',
+    'ne':'nepali',
+    'no':'norwegian',
+    'pt':'portuguese',
+    'ro':'romanian',
+    'ru':'russian',
+    'sl':'slovene',
+    'es':'spanish',
+    'sv':'swedish',
+    'tg':'tajik',
+    'tr':'turkish'
+}
+
 def lower(stringx):
     "lower case the text"
     return stringx.lower()
@@ -14,6 +46,9 @@ def replace_newline_period(stringx):
     "replace new line characters, new page characters, and periods with |. Also remove multiple white spaces"
     # replace newlines with |s
     stringx = stringx.replace("\n", " | ")
+    
+    # replace [newpage]
+    stringx = stringx.replace("[newpage]", "")
 
     # remove multiple whitespace
     stringx = " ".join(stringx.split())
@@ -35,7 +70,7 @@ def remove_punctuation(stringx):
 
 def remove_stopwords(stringx, language):
     "remove stopwords"
-    eng_stopwords = stopwords.words("english")
+    eng_stopwords = stopwords.words(nltk_langdetect_dict[language])
 
     # remove stopwords, tweet tokenizer because doens't split apostrophes
     tk = TweetTokenizer()
@@ -47,11 +82,11 @@ def remove_stopwords(stringx, language):
     return stringx
     
 def stem(stringx, stemmer=None, language=None):
-    "stem a string. snowball is less agressive"
+    "stem a string. snowball is less agressive, lancaster only works with english"
     if stemmer == "snowball":
-        stemmer = SnowballStemmer(language)
+        stemmer = SnowballStemmer(nltk_langdetect_dict[language])
     elif stemmer == "lancaster":
-        stemmer = LancasterStemmer(language)
+        stemmer = LancasterStemmer()
     if stemmer != None:
         tk = TweetTokenizer()
         tokenized_string = tk.tokenize(stringx)
