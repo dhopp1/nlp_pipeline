@@ -94,3 +94,17 @@ def stem(stringx, stemmer=None, language=None):
         stringx = " ".join(stringx)
     return stringx
 
+def gen_word_count_dict(stringx, exclude_words):
+    "create a dictionary of word counts in a string. exclude_words is a list of words to filter out"
+    counts = dict()
+    words = stringx.split(" ")
+
+    for word in words:
+        if word in counts:
+            counts[word] += 1
+        else:
+            counts[word] = 1
+    
+    counts = {word:count for word, count in counts.items() if (len(word) > 1) and not(word in exclude_words) and not(word.isnumeric())}
+
+    return counts

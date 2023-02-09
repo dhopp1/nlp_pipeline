@@ -1,5 +1,6 @@
 from importlib import import_module
 import pandas as pd
+import os
 
 import nlp_tools.files_setup
 
@@ -129,4 +130,41 @@ class nlp_processor:
                 file.write(stringx.encode())
                 file.close()
                     
+    def gen_word_count_csv(self, text_ids, path_prefix, exclude_words):
+        """Gets word counts from files in transformed_txt_files/ directory and writes them to CSV
+        parameters:
+            :text_ids: list[float]: single text_id or list of them to perform the transformation(s) on
+            :path_prefix: str: what the prefix of the files in the transformed_txt_files/ path is
+        """
+        if type(text_ids) != list:
+            text_ids = [text_ids]
+        
+        # check if CSV already exists
+        csv_path = f"{self.data_path}csv_outputs/{path_prefix}word_counts.csv"
+        
+        if os.path.exists(csv_path):
+            csv = pd.read_csv(csv_path)
+        else:
+            csv = pd.DataFrame({
+                "text_id": self.metadata.text_id.values,
+                "word_count_dict": ""
+            })
+        
+        counter = 1
+        for text_id in text_ids:
+            print(f"creating word count dictionary: {counter}/{len(text_ids)}")
+            text_path = f"{self.data_path}transformed_txt_files/{path_prefix}{text_id}.txt"
+            
+            # only perform if text file exists
+            if os.path.exists(text_path):
+                # reading original text
+                file = open(f"{text_path}", "r", encoding = "UTF-8") 
+                stringx = file.read()
+                file.close()
+                
+                word_dict = self.text_transformation.gen_word_count_dict(stringx, exclude_words)
+                
+                # adding and writing to CSV
+                csv.loc[csv.text_id == text_id, "word_count_dict"] = str(word_dict)
+                csv.to_csv(csv_path, index = False)
             
