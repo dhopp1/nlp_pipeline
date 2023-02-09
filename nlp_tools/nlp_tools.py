@@ -249,8 +249,9 @@ class nlp_processor:
             
             txt_path = f"{self.data_path}transformed_txt_files/{path_prefix}{text_id}.txt"
             
-            # only do if txt path exists
-            if os.path.exists(txt_path):
+            # only do if txt path exists and hasn't already been run
+            prior_value = csv.loc[csv.text_id == text_id, "avg_sentiment_w_neutral"].values[0]
+            if os.path.exists(txt_path) & ((str(prior_value) == "") | (str(prior_value) == "nan")):
                 # reading original text
                 file = open(f"{txt_path}", "r", encoding = "UTF-8") 
                 stringx = file.read()
@@ -265,3 +266,20 @@ class nlp_processor:
                 csv.loc[csv.text_id == text_id, "neutral_proportion"] = len([x for x in sentiments if x == 0.0]) / len(sentiments)
                 csv.to_csv(csv_path, index = False)
                 
+                
+    def plot_word_occurrences(self, text_ids_list, word, path_prefix, x_labels = None):
+        """get plot of occurrences of a particular word over groups of documents. Searches for contains rather than exact matches.
+        parameters:
+            :text_ids_list: list[int]: either list of list of text_ids, e.g., [[1,2], [3,4]], or if individual documents rather than groups, [1,2,3,4]
+            :word: str: which word to look for
+            :path_prefix: str: what the prefix of the files in the csv_outputs/ path is. Need to have run the gen_word_count_csv() function.
+            :x_labels: list: what to label the x-axis in the plot, what are the different documents or groups of documents. E.g., decades or years.
+        """
+        csv_path = f"{self.data_path}csv_outputs/{path_prefix}word_counts.csv"
+        
+        # only run if file exists
+        if os.path.exists(csv_path):
+            csv = pd.read_csv(csv_path)
+            p, plot_df = self.visualizations.plot_word_occurrences(csv, text_ids_list, word, x_labels)
+            
+            return (p, plot_df)

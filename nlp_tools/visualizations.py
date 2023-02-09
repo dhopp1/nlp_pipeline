@@ -47,3 +47,31 @@ def word_cloud(df, n_words):
     plt.show()
     
     return (p, plot_df)
+
+def get_word_occurrences(df_list, word):
+    "get counts of a specific word in different documents or groups of documents. Goes on contains rather than exact match."
+    counts = []
+    for df in df_list:
+        counts.append(sum(list(df.loc[df.word.str.contains(word), "count"].values)))
+    return counts
+
+def plot_word_occurrences(df, text_ids_list, word, x_labels = None):
+    "plot occurrences of a word in different documents or group of documents. df = word count dict csv, text_ids_list = list of text ids, x_labels = xlabels for the document gorups"
+    # if no x labels just 1:n
+    if x_labels is None:
+        x_labels = list(range(1, len(text_ids_list)+1))
+        
+    df_list = []
+    for id_group in text_ids_list:
+        if type(id_group) != list:
+            id_group = [id_group]
+        group_df = df.loc[df.text_id.isin(id_group), :].reset_index(drop=True)
+        df_list.append(convert_word_count_dict_to_df(group_df))
+
+    counts = get_word_occurrences(df_list, word)
+        
+    p = plt.figure()
+    plt.plot(x_labels, counts)
+    plt.title(f"Occurrences of '{word}'")
+    
+    return (p, pd.DataFrame({"x_label":x_labels, "count":counts}))
