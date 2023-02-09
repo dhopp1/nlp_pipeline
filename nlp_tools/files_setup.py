@@ -59,6 +59,8 @@ def download_document(metadata, data_path, text_id, web_filepath):
     if str(web_filepath) == "" or str(web_filepath) == "nan":
         return None
     else:
+        web_filepath = web_filepath.split(",")[0] # may have multiple URLs stored in field, take only first (english)
+        
         # first check if this file already downloaded
         if not(os.path.isfile(f"{data_path}raw_files/{text_id}.html")) and not(os.path.isfile(f"{data_path}raw_files/{text_id}.pdf")):
             response = requests.get(web_filepath)

@@ -267,19 +267,38 @@ class nlp_processor:
                 csv.to_csv(csv_path, index = False)
                 
                 
-    def plot_word_occurrences(self, text_ids_list, word, path_prefix, x_labels = None):
+    def plot_word_occurrences(self, text_ids_list, word, path_prefix, x_labels = None, title = ""):
         """get plot of occurrences of a particular word over groups of documents. Searches for contains rather than exact matches.
         parameters:
             :text_ids_list: list[int]: either list of list of text_ids, e.g., [[1,2], [3,4]], or if individual documents rather than groups, [1,2,3,4]
             :word: str: which word to look for
             :path_prefix: str: what the prefix of the files in the csv_outputs/ path is. Need to have run the gen_word_count_csv() function.
             :x_labels: list: what to label the x-axis in the plot, what are the different documents or groups of documents. E.g., decades or years.
+            :title: str: additional title to the plot
         """
         csv_path = f"{self.data_path}csv_outputs/{path_prefix}word_counts.csv"
         
         # only run if file exists
         if os.path.exists(csv_path):
             csv = pd.read_csv(csv_path)
-            p, plot_df = self.visualizations.plot_word_occurrences(csv, text_ids_list, word, x_labels)
+            p, plot_df = self.visualizations.plot_word_occurrences(csv, text_ids_list, word, x_labels, title)
             
+            return (p, plot_df)
+        
+        
+    def plot_sentiment(self, text_ids_list, path_prefix, x_labels = None, title = "", sentiment_col = "avg_sentiment_wo_neutral"):
+        """get plot of sentiment of a particular word over groups of documents. Searches for contains rather than exact matches.
+        parameters:
+            :text_ids_list: list[int]: either list of list of text_ids, e.g., [[1,2], [3,4]], or if individual documents rather than groups, [1,2,3,4]
+            :path_prefix: str: what the prefix of the files in the csv_outputs/ path is. Need to have run the get_sentiment_csv() function.
+            :x_labels: list: what to label the x-axis in the plot, what are the different documents or groups of documents. E.g., decades or years.
+            :title: str: additional title to the plot
+            :sentiment_col: str: which column in the sentiment df to plot, one of ["avg_sentiment_wo_neutral", "avg_sentiment_w_neutral", "neutral_proportion"]
+        """
+        csv_path = f"{self.data_path}csv_outputs/{path_prefix}sentiments.csv"
+        
+        # only run if file exists
+        if os.path.exists(csv_path):
+            csv = pd.read_csv(csv_path)
+            p, plot_df = self.visualizations.plot_sentiment(csv, text_ids_list, x_labels, title, sentiment_col)
             return (p, plot_df)
