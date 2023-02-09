@@ -1,0 +1,9 @@
+bs4
+langdetect
+matplotlib
+nltk
+pandas
+pdf2image
+PyPDF2
+pytesseract
+wordcloud

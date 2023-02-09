@@ -1,5 +1,6 @@
 import pandas as pd
 import matplotlib.pyplot as plt
+from wordcloud import WordCloud
 
 def convert_word_count_dict_to_df(df):
     "helper function to convert word counts dictionaries to one dataframe"
@@ -23,7 +24,26 @@ def bar_plot_word_count(df, n_words, title=""):
     p = plt.figure()
     plt.bar(plot_df.word, plot_df["count"])
     plt.xticks(rotation = 90)
-    plt.ylabel("Occurences")
+    plt.ylabel("Occurrences")
     plt.title(title)
+    
+    return (p, plot_df)
+
+def word_cloud(df, n_words):
+    plot_df = df.iloc[:n_words,:].reset_index(drop=True)
+    text_list = [[plot_df.loc[i, "word"]] * plot_df.loc[i, "count"] for i in range(len(plot_df))]
+    flat_list = [item for sublist in text_list for item in sublist]
+    text = " ".join(flat_list)
+    
+    word_cloud = WordCloud(
+        collocations = False, 
+        background_color = "white", 
+        color_func=lambda *args, **kwargs: (0,0,0)
+    ).generate(text)
+    
+    p = plt.figure()
+    plt.imshow(word_cloud, interpolation='bilinear')
+    plt.axis("off")
+    plt.show()
     
     return (p, plot_df)
