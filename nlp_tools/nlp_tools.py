@@ -107,6 +107,8 @@ class nlp_processor:
         counter = 1
         for text_id in text_ids:
             print(f"transforming text: {counter}/{len(text_ids)}")
+            counter += 1
+            
             text_path = self.metadata.loc[lambda x: x.text_id == text_id, "local_txt_filepath"].values[0]
             language = self.metadata.loc[lambda x: x.text_id == text_id, "detected_language"].values[0]
             
@@ -156,6 +158,8 @@ class nlp_processor:
         counter = 1
         for text_id in text_ids:
             print(f"creating word count dictionary: {counter}/{len(text_ids)}")
+            counter += 1
+            
             text_path = f"{self.data_path}transformed_txt_files/{path_prefix}{text_id}.txt"
             
             # only perform if text file exists
@@ -209,3 +213,55 @@ class nlp_processor:
             p, plot_data = self.visualizations.word_cloud(df, n_words)
             
             return (p, plot_data)
+        
+    def gen_sentiment_csv(self, text_ids, path_prefix):
+        """generating average sentiment of documents. A higher score is more positive, lower is more negative. Depends on sentences being delimited by |
+        parameters:
+            :text_ids: list[float]: single text_id or list of them to perform the transformation(s) on
+            :path_prefix: str: what the prefix of the files in the transformed_txt_files/ path is
+        output:
+            :pd.DataFrame: with columns:
+                :text_id: text ids
+                :avg_sentiment_w_neutral: average sentiment score with 0.0 neutral sentences
+                :avg_sentiment_wo_neutral: average sentiment score excluding 0.0 neutral sentences
+                :neutral_proportion: % of sentences in the document with a 0.0 sentiment score
+        """
+        if type(text_ids) != list:
+            text_ids = [text_ids]
+    
+        # check if CSV already exists
+        csv_path = f"{self.data_path}csv_outputs/{path_prefix}sentiments.csv"
+        
+        if os.path.exists(csv_path):
+            csv = pd.read_csv(csv_path)
+        else:
+            csv = pd.DataFrame({
+                "text_id": self.metadata.text_id.values,
+                "avg_sentiment_w_neutral": "",
+                "avg_sentiment_wo_neutral": "",
+                "neutral_proportion": ""
+            })
+        
+        counter = 1
+        for text_id in text_ids:
+            print(f"getting sentiments: {counter}/{len(text_ids)}")
+            counter += 1
+            
+            txt_path = f"{self.data_path}transformed_txt_files/{path_prefix}{text_id}.txt"
+            
+            # only do if txt path exists
+            if os.path.exists(txt_path):
+                # reading original text
+                file = open(f"{txt_path}", "r", encoding = "UTF-8") 
+                stringx = file.read()
+                file.close()
+                
+                # calculating sentiments
+                sentiments = [self.text_transformation.get_single_sentiment(x)["compound"] for x in stringx.split("|") if (len(x) > 3) & (len(x.split(" ")) > 2) & (not(x.isnumeric()))] # only do sentiment for sentences with more than 2 words and not numeric
+                
+                # adding and writing to CSV
+                csv.loc[csv.text_id == text_id, "avg_sentiment_w_neutral"] = sum(sentiments) / len(sentiments)
+                csv.loc[csv.text_id == text_id, "avg_sentiment_wo_neutral"] = sum([x for x in sentiments if x != 0.0]) / len([x for x in sentiments if x != 0.0])
+                csv.loc[csv.text_id == text_id, "neutral_proportion"] = len([x for x in sentiments if x == 0.0]) / len(sentiments)
+                csv.to_csv(csv_path, index = False)
+                

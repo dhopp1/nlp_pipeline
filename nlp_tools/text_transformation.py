@@ -4,6 +4,7 @@ from nltk.tokenize import TweetTokenizer
 from nltk.corpus import stopwords
 from nltk.stem.snowball import SnowballStemmer
 from nltk.stem.lancaster import LancasterStemmer
+from nltk.sentiment import SentimentIntensityAnalyzer
 import os
 
 # key between langdetect language ISO code and NLTK's names for snowball and stopwords
@@ -108,3 +109,8 @@ def gen_word_count_dict(stringx, exclude_words):
     counts = {word:count for word, count in counts.items() if (len(word) > 1) and not(word in exclude_words) and not(word.isnumeric())}
 
     return counts
+
+def get_single_sentiment(stringx):
+    "get sentiment of a single string"
+    sia = SentimentIntensityAnalyzer()
+    return sia.polarity_scores(stringx)
