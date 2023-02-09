@@ -4,7 +4,7 @@ from PyPDF2 import PdfReader
 from bs4 import BeautifulSoup
 import pytesseract
 import platform
-from pdf2image import convert_from_path
+from pdf2image import convert_from_path, pdfinfo_from_path
 from pathlib import Path
 from PIL import Image
 from langdetect import detect
@@ -108,12 +108,25 @@ def parse_ocr_pdf(data_path, pdf_path, windows_tesseract_path = None, windows_po
     # storing image files temporarily
     PDF_file = Path(pdf_path)
     image_file_list = []
+    
     if platform.system() == "Windows":
-        pdf_pages = convert_from_path(
-            PDF_file, 500, poppler_path = windows_poppler_path
-        )
+        info = pdfinfo_from_path(pdf_path, userpw=None, poppler_path=windows_poppler_path)
+        max_pages = info["Pages"]
+        pdf_pages = []
+        for i in range(1, max_pages + 1):
+            tmp_pdf_pages = convert_from_path(
+                PDF_file, 500, poppler_path = windows_poppler_path, first_page = i, last_page = i
+            )
+            pdf_pages.append(tmp_pdf_pages[0])
     else:
-        pdf_pages = convert_from_path(PDF_file, 500)
+        info = pdfinfo_from_path(pdf_path, userpw=None)
+        max_pages = info["Pages"]
+        pdf_pages = []
+        for i in range(1, max_pages + 1):
+            tmp_pdf_pages = convert_from_path(
+                PDF_file, 500, first_page = i, last_page = i
+            )
+            pdf_pages.append(tmp_pdf_pages[0])
         
     # iterate through pages
     for page_enumeration, page in enumerate(pdf_pages, start=1):
@@ -123,17 +136,16 @@ def parse_ocr_pdf(data_path, pdf_path, windows_tesseract_path = None, windows_po
         # Save the image of the page in system
         page.save(filename, "JPEG")
         image_file_list.append(filename)
-        # Save the image of the page in system
-        page.save(filename, "JPEG")
-        image_file_list.append(filename)
         
     # Iterate from 1 to total number of pages
     return_text = ""
+    counter = 1
     for image_file in image_file_list:
+        print(f"OCR conversion of {pdf_path}, page {counter} / {len(image_file_list)}")
+        counter += 1
+        
         text = str(((pytesseract.image_to_string(Image.open(image_file)))))
         text = text.replace("-\n", "")
- 
-        # Finally, write the processed text to the file.
         return_text += "[newpage] " + text
     
     return return_text
