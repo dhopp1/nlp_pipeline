@@ -215,3 +215,65 @@ def convert_to_text(metadata, data_path, text_id, windows_tesseract_path = None,
         final_return = None
         
     return final_return
+
+
+def refresh_local_metadata(metadata, data_path):
+    """update the metadata to reflect the situation in the data path in terms of files/conversions done
+    parameters:
+        :metadata: pd.DataFrame: metadata dataframe of the object
+        :data_path: str: filepath where all files are stored
+    output:
+        will update metadata for correct situation in terms of:
+            -raw_files/
+            -txt_files/
+        and update downstream files (so that can't have a transformed txt or sentiment without the raw pdf, etc.),  in:
+            -transformed_txt_files/
+            -csv_outputs/
+    """
+    # raw path
+    print(f"Syncing metadata to local file situation: checking raw paths...")
+    def check_raw_exists(text_id):
+        files = glob.glob(f"{data_path}raw_files/{text_id}.*")
+        return files[0] if len(files) == 1 else ""
+    raw_paths = [check_raw_exists(text_id) for text_id in metadata.text_id.values]
+    metadata["local_raw_filepath"] = raw_paths
+    
+    # txt path
+    print(f"Syncing metadata to local file situation: checking txt paths...")
+    def check_txt_exists(text_id):
+        txt_path = f"{data_path}txt_files/{text_id}.txt"
+        return txt_path if os.path.exists(txt_path) else ""
+    txt_paths = [check_txt_exists(text_id) for text_id in metadata.text_id.values]
+    metadata["local_txt_filepath"] = txt_paths
+    
+    # remove transformed_txt/ files if there's not raw/txt path (old/stale file)
+    print(f"Syncing metadata to local file situation: checking transformed_txt paths...")
+    def remove_transformed_files(text_id, txt_path):
+        files = glob.glob(f"{data_path}transformed_txt_files/*_{text_id}.txt")
+        if len(files) > 0:
+            if (str(txt_path) == "") | (str(txt_path) == "nan"):
+                for file in files:
+                    os.remove(file)
+    [remove_transformed_files(text_id, txt_path) for text_id, txt_path in dict(zip(metadata.text_id.values, txt_paths)).items()]
+    
+    # csv_outputs/ files. Remove entries in CSVs where no raw/txt path exists
+    print(f"Syncing metadata to local file situation: checking CSV outputs...")
+    def remove_csv_outputs(text_id, txt_path, data):
+        if (str(txt_path) == "") | (str(txt_path) == "nan"): # if no txt file, blank out all values for that in the csv
+            data.loc[data.text_id == text_id, data.columns[data.columns != "text_id"]] = ""
+        return data
+    
+    csv_files = glob.glob(f"{data_path}csv_outputs/*.csv")
+    counter = 1
+    for file in csv_files:
+        print(f"Syncing metadata to local file situation: checking CSV outputs: {counter}/{len(csv_files)}")
+        counter += 1
+        
+        data = pd.read_csv(file)
+        for text_id, txt_path in dict(zip(metadata.text_id.values, txt_paths)).items():
+            data = remove_csv_outputs(text_id, txt_path, data)
+        data.to_csv(file, index = False)
+    
+    print(f"Syncing metadata to local file situation: Success!")
+    
+    return metadata

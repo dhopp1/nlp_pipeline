@@ -2,8 +2,6 @@ from importlib import import_module
 import pandas as pd
 import os
 
-import nlp_tools.files_setup
-
 class nlp_processor:
     """Primary class of the library
     parameters:
@@ -40,10 +38,15 @@ class nlp_processor:
         # making visualizations available
         self.visualizations = import_module("nlp_tools.visualizations")
         
-    def refresh_metadata(self):
+    def refresh_object_metadata(self):
         "update the metadata of the processor in case changes are made to the file outside of the object"
         self.metadata = pd.read_csv(f"{self.data_path}metadata.csv")
         self.files_setup.generate_metadata_file(self.data_path, self.metadata_addt_column_names) # make sure text_id added
+    
+    def sync_local_metadata(self):
+        "update the metadata local file to reflect actual state of files in the data directory"
+        self.metadata = self.files_setup.refresh_local_metadata(self.metadata, self.data_path)
+        self.metadata.to_csv(f"{self.data_path}metadata.csv", index = False)
         
     def download_text_id(self, text_ids):
         "download a file from a URL and update the metadata file. Pass either single text id or list of them"
@@ -87,9 +90,7 @@ class nlp_processor:
             perform_remove_punctuation = False,
             perform_remove_stopwords = False,
             perform_stemming = False,
-            stopwords_language = "english",
-            stemmer = "snowball",
-            stemmer_language = "english"
+            stemmer = "snowball"
     ):
         """Transforms texts in various ways and writes new text files to the transformed_txt_files/ directory
         parameters:
@@ -111,6 +112,8 @@ class nlp_processor:
             
             text_path = self.metadata.loc[lambda x: x.text_id == text_id, "local_txt_filepath"].values[0]
             language = self.metadata.loc[lambda x: x.text_id == text_id, "detected_language"].values[0]
+            if (str(language) == "") | (str(language) == "nan"): # if no language, default to english
+                language = "en"
             
             # only perform if text file exists
             if (".txt" in str(text_path)):
