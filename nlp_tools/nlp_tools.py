@@ -95,7 +95,7 @@ class nlp_processor:
         """Transforms texts in various ways and writes new text files to the transformed_txt_files/ directory
         parameters:
             :text_ids: list[float]: single text_id or list of them to perform the transformation(s) on
-            :path_prefix: str: what to prefix the resulting .txt files with to label which transformations have been done
+            :path_prefix: str: what to prefix the resulting .txt files with to label which transformations have been done. A "_" will be appended to the end of it.
             :perform_lower: boolean: whether or not to lower case the text
             :perform_replace_newline_period: boolean: whether or not to replace new lines and periods with | so words and sentences can be identified in isolation
             :perform_remove_punctuation: boolean: whether or not to remove punctuation, except for |'s
@@ -103,6 +103,8 @@ class nlp_processor:
             :perform_stemming: boolean: whether or not to perform stemming
             :stemmer: if choosing to stem, nltk stemmer. E.g., nltk.stem.snowball.SnowballStemmer("english"), or string of "snowball" or "lancaster" for one of these. Lancaster only works in english
         """
+        path_prefix += "_"
+        
         if type(text_ids) != list:
             text_ids = [text_ids]
         counter = 1
@@ -144,6 +146,8 @@ class nlp_processor:
             :text_ids: list[float]: single text_id or list of them to perform the transformation(s) on
             :path_prefix: str: what the prefix of the files in the transformed_txt_files/ path is
         """
+        path_prefix += "_"
+        
         if type(text_ids) != list:
             text_ids = [text_ids]
         
@@ -186,6 +190,8 @@ class nlp_processor:
             :n_words: int: top n words to show in the plot
             :title: str: title of the plot if desired
         """
+        path_prefix += "_"
+        
         if type(text_ids) != list:
             text_ids = [text_ids]
         
@@ -229,6 +235,8 @@ class nlp_processor:
                 :avg_sentiment_wo_neutral: average sentiment score excluding 0.0 neutral sentences
                 :neutral_proportion: % of sentences in the document with a 0.0 sentiment score
         """
+        path_prefix += "_"
+        
         if type(text_ids) != list:
             text_ids = [text_ids]
     
@@ -279,6 +287,8 @@ class nlp_processor:
             :x_labels: list: what to label the x-axis in the plot, what are the different documents or groups of documents. E.g., decades or years.
             :title: str: additional title to the plot
         """
+        path_prefix += "_"
+        
         csv_path = f"{self.data_path}csv_outputs/{path_prefix}word_counts.csv"
         
         # only run if file exists
@@ -298,6 +308,8 @@ class nlp_processor:
             :title: str: additional title to the plot
             :sentiment_col: str: which column in the sentiment df to plot, one of ["avg_sentiment_wo_neutral", "avg_sentiment_w_neutral", "neutral_proportion"]
         """
+        path_prefix += "_"
+        
         csv_path = f"{self.data_path}csv_outputs/{path_prefix}sentiments.csv"
         
         # only run if file exists
