@@ -114,6 +114,7 @@ def parse_ocr_pdf(data_path, pdf_path, windows_tesseract_path = None, windows_po
         max_pages = info["Pages"]
         pdf_pages = []
         for i in range(1, max_pages + 1):
+            print(f"OCR conversion (stage 1/3) of {pdf_path}, page {i} / {max_pages}")
             tmp_pdf_pages = convert_from_path(
                 PDF_file, 500, poppler_path = windows_poppler_path, first_page = i, last_page = i
             )
@@ -123,13 +124,18 @@ def parse_ocr_pdf(data_path, pdf_path, windows_tesseract_path = None, windows_po
         max_pages = info["Pages"]
         pdf_pages = []
         for i in range(1, max_pages + 1):
+            print(f"OCR conversion (stage 1/3) of {pdf_path}, page {i} / {max_pages}")
             tmp_pdf_pages = convert_from_path(
                 PDF_file, 500, first_page = i, last_page = i
             )
             pdf_pages.append(tmp_pdf_pages[0])
         
     # iterate through pages
+    counter = 1
     for page_enumeration, page in enumerate(pdf_pages, start=1):
+        print(f"OCR conversion (stage 2/3) of {pdf_path}, page {counter} / {max_pages}")
+        counter += 1
+        
         # Create a file name to store the image
         filename = f"{data_path}\page_{page_enumeration:03}.jpg"
  
@@ -141,7 +147,7 @@ def parse_ocr_pdf(data_path, pdf_path, windows_tesseract_path = None, windows_po
     return_text = ""
     counter = 1
     for image_file in image_file_list:
-        print(f"OCR conversion of {pdf_path}, page {counter} / {len(image_file_list)}")
+        print(f"OCR conversion (stage 3/3) of {pdf_path}, page {counter} / {len(image_file_list)}")
         counter += 1
         
         text = str(((pytesseract.image_to_string(Image.open(image_file)))))
