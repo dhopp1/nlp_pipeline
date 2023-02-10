@@ -198,7 +198,7 @@ def convert_to_text(metadata, data_path, text_id, windows_tesseract_path = None,
             # pdf file
             if ".pdf" in raw_path:
                 return_text = parse_pdf(raw_path)
-                if (len(set(return_text.split("[newpage] "))) == 1) | (return_text.count("/G") > 1000): # if only empties, scan, needs to be OCR converted. If bunch of "/G"s, encoding error, like review of maritime transport 2006. Force OCR.
+                if (len(set(return_text.split("[newpage] "))) == 1) | (return_text.count("/G") > 5000): # if only empties, scan, needs to be OCR converted. If bunch of "/G"s, encoding error, like review of maritime transport 2006. Force OCR.
                     return_text = parse_ocr_pdf(data_path, raw_path, windows_tesseract_path, windows_poppler_path)
                     # remove temporary image files from OCR
                     for f in glob.glob(f"{data_path}*.jpg"):
