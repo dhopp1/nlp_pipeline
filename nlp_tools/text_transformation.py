@@ -5,6 +5,7 @@ from nltk.corpus import stopwords
 from nltk.stem.snowball import SnowballStemmer
 from nltk.stem.lancaster import LancasterStemmer
 from nltk.sentiment import SentimentIntensityAnalyzer
+from wordfreq import zipf_frequency
 import os
 
 # key between langdetect language ISO code and NLTK's names for snowball and stopwords
@@ -113,4 +114,8 @@ def gen_word_count_dict(stringx, exclude_words):
 def get_single_sentiment(stringx):
     "get sentiment of a single string"
     sia = SentimentIntensityAnalyzer()
-    return sia.polarity_scores(stringx)
+    return sia.polarity_scores(stringx)  
+
+def get_word_frequency(word, language):
+    "https://pypi.org/project/wordfreq/"
+    return zipf_frequency(word, language)

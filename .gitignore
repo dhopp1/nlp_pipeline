@@ -129,3 +129,4 @@ dmypy.json
 .pyre/
 
 UNCTAD_application.py
+*.DS_Store

@@ -7,3 +7,4 @@ pdf2image
 PyPDF2
 pytesseract
 wordcloud
+wordfreq

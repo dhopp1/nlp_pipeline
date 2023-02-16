@@ -117,8 +117,8 @@ class nlp_processor:
             if (str(language) == "") | (str(language) == "nan"): # if no language, default to english
                 language = "en"
             
-            # only perform if text file exists
-            if (".txt" in str(text_path)):
+            # only perform if text file exists and transformed file doesn't already exist
+            if (".txt" in str(text_path)) & (not(os.path.exists(f"{self.data_path}transformed_txt_files/{path_prefix}{text_id}.txt"))):
                 # reading original text
                 file = open(f"{text_path}", "r", encoding = "UTF-8") 
                 stringx = file.read()
@@ -169,8 +169,9 @@ class nlp_processor:
             
             text_path = f"{self.data_path}transformed_txt_files/{path_prefix}{text_id}.txt"
             
-            # only perform if text file exists
-            if os.path.exists(text_path):
+            # only perform if text file exists and hasn't already been run
+            prior_value = csv.loc[csv.text_id == text_id, "word_count_dict"].values[0]
+            if os.path.exists(text_path) & ((str(prior_value) == "") | (str(prior_value) == "nan")):
                 # reading original text
                 file = open(f"{text_path}", "r", encoding = "UTF-8") 
                 stringx = file.read()
@@ -317,3 +318,92 @@ class nlp_processor:
             csv = pd.read_csv(csv_path)
             p, plot_df = self.visualizations.plot_sentiment(csv, text_ids_list, x_labels, title, sentiment_col)
             return (p, plot_df)
+        
+    
+    def gen_summary_stats_csv(self, text_ids, path_prefix):
+        """generating various summary statistics: number of words, unique words, sentences, pages, etc. per document. Depends on sentences being delimited by |
+        parameters:
+            :text_ids: list[float]: single text_id or list of them to perform the transformation(s) on
+            :path_prefix: str: what the prefix of the files in the transformed_txt_files/ path is
+        output:
+            :pd.DataFrame: with columns:
+                :text_id: text ids
+                :n_words: number of total words in the transformed document
+                :n_unique_words: number of unique words in the transformed document
+                :n_sentences: number of sentences in the transformed document
+                :n_pages: number of pages in the original document
+                :avg_word_length: average word length (number of letters) in the original document
+                :avg_word_incidence: average incidence of words in the language of the document (higher is more frequent/common words, a word with Zipf value 6 appears once per thousand words and a word with Zipf value 3 appears once per million words)
+        """
+        path_prefix += "_"
+        
+        if type(text_ids) != list:
+            text_ids = [text_ids]
+    
+        # check if CSV already exists
+        csv_path = f"{self.data_path}csv_outputs/{path_prefix}summary_stats_csv.csv"
+        
+        if os.path.exists(csv_path):
+            csv = pd.read_csv(csv_path)
+        else:
+            csv = pd.DataFrame({
+                "text_id": self.metadata.text_id.values,
+                "n_words": "",
+                "n_unique_words": "",
+                "n_sentences": "",
+                "n_pages": "",
+                "avg_word_length": "",
+                "avg_word_incidence": ""
+            })
+        
+        counter = 1
+        for text_id in text_ids:
+            print(f"getting word and sentence count: {counter}/{len(text_ids)}")
+            counter += 1
+            
+            txt_path = f"{self.data_path}transformed_txt_files/{path_prefix}{text_id}.txt"
+            orig_txt_path = f"{self.data_path}txt_files/{text_id}.txt" # for n_pages
+            language = self.metadata.loc[lambda x: x.text_id == text_id, "detected_language"].values[0]
+            
+            # only do if txt path exists and hasn't already been run
+            prior_value = csv.loc[csv.text_id == text_id, "n_words"].values[0]
+            if os.path.exists(txt_path) & ((str(prior_value) == "") | (str(prior_value) == "nan")):
+                # reading transformed text
+                file = open(f"{txt_path}", "r", encoding = "UTF-8") 
+                stringx = file.read()
+                file.close()
+                
+                # reading original text for n_pages
+                file = open(f"{orig_txt_path}", "r", encoding = "UTF-8") 
+                orig_stringx = file.read()
+                file.close()
+                
+                # calculating n_words
+                n_words = len([x for x in stringx.split(" ") if len(x) > 1]) # minimum word length
+                
+                # calculating n_unique_words
+                n_unique_words = len(set([x for x in stringx.split(" ") if len(x) > 1]))
+                
+                # calculating n_sentences
+                n_sentences = len([x for x in stringx.split("|") if len(x) > 2]) # minimum sentence length
+                
+                # calculating n_pages
+                n_pages = orig_stringx.count("[newpage]")
+                
+                # calculating avg_word_length
+                avg_word_length = [len(x) for x in orig_stringx.split(" ") if len(x) > 1]
+                avg_word_length = sum(avg_word_length) / len(avg_word_length)
+                
+                # calculating 
+                word_list = [x for x in orig_stringx.split(" ") if len(x) > 1]
+                avg_word_incidence = [self.text_transformation.get_word_frequency(x, language) for x in word_list]
+                avg_word_incidence = sum(avg_word_incidence) / len(avg_word_incidence)
+                
+                # adding and writing to CSV
+                csv.loc[csv.text_id == text_id, "n_words"] = n_words
+                csv.loc[csv.text_id == text_id, "n_unique_words"] = n_unique_words
+                csv.loc[csv.text_id == text_id, "n_sentences"] = n_sentences
+                csv.loc[csv.text_id == text_id, "n_pages"] = n_pages
+                csv.loc[csv.text_id == text_id, "avg_word_length"] = avg_word_length
+                csv.loc[csv.text_id == text_id, "avg_word_incidence"] = avg_word_incidence
+                csv.to_csv(csv_path, index = False)
