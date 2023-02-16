@@ -25,7 +25,7 @@ class nlp_processor:
         self.windows_poppler_path = windows_poppler_path
         
         # setting up directory structure
-        self.files_setup = import_module("nlp_tools.files_setup")
+        self.files_setup = import_module("nlp_pipeline.files_setup")
         self.files_setup.setup_directories(self.data_path)
         
         # generating metadata file
@@ -33,10 +33,10 @@ class nlp_processor:
         self.metadata = pd.read_csv(f"{data_path}metadata.csv")
         
         # making text transformations available
-        self.text_transformation = import_module("nlp_tools.text_transformation")
+        self.text_transformation = import_module("nlp_pipeline.text_transformation")
         
         # making visualizations available
-        self.visualizations = import_module("nlp_tools.visualizations")
+        self.visualizations = import_module("nlp_pipeline.visualizations")
         
     def refresh_object_metadata(self):
         "update the metadata of the processor in case changes are made to the file outside of the object"

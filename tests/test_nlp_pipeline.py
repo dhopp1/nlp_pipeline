@@ -1,6 +1,6 @@
 import unittest
-#from nlp_tools import *
-#from nlp_tools.module import *
+#from nlp_pipeline import *
+#from nlp_pipeline.module import *
 
 
 class TestDataSetup(unittest.TestCase):
