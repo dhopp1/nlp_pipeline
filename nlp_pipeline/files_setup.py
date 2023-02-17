@@ -198,7 +198,7 @@ def convert_to_text(metadata, data_path, text_id, windows_tesseract_path = None,
             # pdf file
             if ".pdf" in raw_path:
                 return_text = parse_pdf(raw_path)
-                if (len(set(return_text.split("[newpage] "))) == 1) | ((return_text.count("/G") / len(return_text)) > 0.01): # if only empties, scan, needs to be OCR converted. If bunch of "/G"s, greater than 1% of all the characters, encoding error, like review of maritime transport 2006. Force OCR.
+                if (len(set(return_text.split("[newpage] "))) == 1) | ((return_text.lower().count("/g") / len(return_text)) > 0.01) | (return_text.lower().count("sqj") > 10): # if only empties, scan, needs to be OCR converted. If bunch of "/G"s, greater than 1% of all the characters, encoding error, like review of maritime transport 2006. Or if poorly digitized and a lot of 'sqj's. Force OCR.
                     return_text = parse_ocr_pdf(data_path, raw_path, windows_tesseract_path, windows_poppler_path)
                     # remove temporary image files from OCR
                     for f in glob.glob(f"{data_path}*.jpg"):

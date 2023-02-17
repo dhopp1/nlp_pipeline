@@ -39,6 +39,11 @@ nltk_langdetect_dict = {
     'tg':'tajik',
     'tr':'turkish'
 }
+def gen_nltk_lang_dict(dictionary, lang):
+    try:
+        return dictionary[lang]
+    except:
+        return "english"
 
 def lower(stringx):
     "lower case the text"
@@ -72,7 +77,7 @@ def remove_punctuation(stringx):
 
 def remove_stopwords(stringx, language):
     "remove stopwords"
-    eng_stopwords = stopwords.words(nltk_langdetect_dict[language])
+    eng_stopwords = stopwords.words(gen_nltk_lang_dict(nltk_langdetect_dict, language))
 
     # remove stopwords, tweet tokenizer because doens't split apostrophes
     tk = TweetTokenizer()
@@ -86,7 +91,7 @@ def remove_stopwords(stringx, language):
 def stem(stringx, stemmer=None, language=None):
     "stem a string. snowball is less agressive, lancaster only works with english"
     if stemmer == "snowball":
-        stemmer = SnowballStemmer(nltk_langdetect_dict[language])
+        stemmer = SnowballStemmer(gen_nltk_lang_dict(nltk_langdetect_dict, language))
     elif stemmer == "lancaster":
         stemmer = LancasterStemmer()
     if stemmer != None:
