@@ -61,7 +61,22 @@ processor.gen_sentiment_csv(text_ids, "all_transformed")
 # get n_words, sentences, and pages of texts
 processor.gen_summary_stats_csv(text_ids, "all_transformed")
 
-# plot of word counts
+# bar plot of most common words in a document or group of documents
+p, plot_df = processor.bar_plot_word_count(
+	text_ids = text_ids, 
+	path_prefix = "all_transformed", # prefix used previously for the transformation
+	n_words = 10, # top n words to show
+	title = "Plot Title"
+)
+
+# word cloud of most common words in a document or group of documents
+p, plot_df = processor.word_cloud(
+	text_ids = text_ids, 
+	path_prefix = "all_transformed", # prefix used previously for the transformation
+	n_words = 10 # top n words to show
+)
+
+# plot of word occurrences over time
 p, plot_df = processor.plot_word_occurrences(
     text_ids_list = text_ids, # can be a list of lists, [[1,2,3], [4,5,6]], for counts by decade e.g.
     word = "green", 
@@ -76,6 +91,15 @@ p, plot_df = processor.plot_sentiment(
     path_prefix = "all_transformed", 
     x_labels = [1,2,3],
     sentiment_col = "neutral_proportion",
+    title = "Plot Title"
+)
+
+# plot various summary stats in documents
+p, plot_df = processor.plot_summary_stats(
+    text_ids_list = text_ids, 
+    path_prefix = "all_transformed", 
+    x_labels = [1,2,3],
+    summary_stat_col = "n_words", # one of: n_words, n_unique_words, n_sentences, n_pages, avg_word_length, avg_word_incidence
     title = "Plot Title"
 )
 ```

@@ -76,6 +76,41 @@ def plot_word_occurrences(df, text_ids_list, word, x_labels = None, title = ""):
     
     return (p, pd.DataFrame({"x_label":x_labels, "count":counts}))
 
+def plot_summary_stats(df, text_ids_list, x_labels = None, title = "", summary_stats_col = "n_words"):
+    "plot summary stats in different documents or group of documents. df = summary_stats csv, text_ids_list = list of text ids, x_labels = xlabels for the document gorups"
+    # if no x labels just 1:n
+    if x_labels is None:
+        x_labels = list(range(1, len(text_ids_list)+1))
+        
+    # subtitle text for which column is being shown
+    if summary_stats_col == "n_words":
+        subtitle = "number of words"
+    elif summary_stats_col == "n_unique_words":
+        subtitle = "number of unique words"
+    elif summary_stats_col == "n_sentences":
+        subtitle = "number of sentences"
+    elif summary_stats_col == "n_pages":
+        subtitle = "number of pages"
+    elif summary_stats_col == "avg_word_length":
+        subtitle = "average word length"
+    elif summary_stats_col == "avg_word_incidence":
+        subtitle = "average word incidence"
+        
+    df_list = []
+    for id_group in text_ids_list:
+        if type(id_group) != list:
+            id_group = [id_group]
+        group_df = df.loc[df.text_id.isin(id_group), :].reset_index(drop=True)
+        df_list.append(group_df)
+
+    values = [sum(x.loc[:, summary_stats_col]) / len(x.loc[:, summary_stats_col]) for x in df_list]
+        
+    p = plt.figure()
+    plt.plot(x_labels, values)
+    plt.title(f"{title} {subtitle}")
+    
+    return (p, pd.DataFrame({"x_label":x_labels, "value":values}))
+
 def plot_sentiment(df, text_ids_list, x_labels = None, title = "", sentiment_col = "avg_sentiment_wo_neutral"):
     "plot average sentiment in different documents or group of documents. df = sentiment csv, text_ids_list = list of text ids, x_labels = xlabels for the document gorups"
     # if no x labels just 1:n

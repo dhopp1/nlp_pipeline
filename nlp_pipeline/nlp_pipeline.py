@@ -407,3 +407,23 @@ class nlp_processor:
                 csv.loc[csv.text_id == text_id, "avg_word_length"] = avg_word_length
                 csv.loc[csv.text_id == text_id, "avg_word_incidence"] = avg_word_incidence
                 csv.to_csv(csv_path, index = False)
+                
+    def plot_summary_stats(self, text_ids_list, path_prefix, x_labels = None, title = "", summary_stats_col = "n_words"):
+        """get plot of various summary statistics over groups of documents.
+        parameters:
+            :text_ids_list: list[int]: either list of list of text_ids, e.g., [[1,2], [3,4]], or if individual documents rather than groups, [1,2,3,4]
+            :path_prefix: str: what the prefix of the files in the csv_outputs/ path is. Need to have run the get_sentiment_csv() function.
+            :x_labels: list: what to label the x-axis in the plot, what are the different documents or groups of documents. E.g., decades or years.
+            :title: str: additional title to the plot
+            :summary_stats_col: str: which column in the summary_stats_col df to plot, one of ["n_words","n_unique_words","n_sentences","n_pages","avg_word_length","avg_word_incidence"]
+        """
+        path_prefix += "_"
+        
+        csv_path = f"{self.data_path}csv_outputs/{path_prefix}summary_stats_csv.csv"
+        
+        # only run if file exists
+        print(os.path.exists(csv_path))
+        if os.path.exists(csv_path):
+            csv = pd.read_csv(csv_path)
+            p, plot_df = self.visualizations.plot_summary_stats(csv, text_ids_list, x_labels, title, summary_stats_col)
+            return (p, plot_df)
