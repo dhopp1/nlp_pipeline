@@ -4,3 +4,19 @@
 
 ### Added
 * initial release
+
+## 0.0.2
+
+### Fixed
+* default to English stopwords if detected language isn't in NLTK stopwords list
+* catch more OCR PDFs
+
+## 0.0.3
+
+### Added
+* add ploting for summary statistics
+
+## 0.0.4
+
+### Fixed
+* fix writing UTF-8 characters to text
