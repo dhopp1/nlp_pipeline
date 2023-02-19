@@ -20,3 +20,8 @@
 
 ### Fixed
 * fix writing UTF-8 characters to text
+
+## 0.0.5
+
+### Fixed
+* make robust to language detect issues

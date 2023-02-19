@@ -213,7 +213,11 @@ def convert_to_text(metadata, data_path, text_id, windows_tesseract_path = None,
             
             # update metadata file
             metadata.loc[lambda x: x.text_id == text_id, "local_txt_filepath"] = f"{data_path}txt_files/{text_id}.txt"
-            metadata.loc[lambda x: x.text_id == text_id, "detected_language"] = detect(return_text)
+            try:
+                detected_lang = detect(return_text)
+            except:
+                detected_lang = "en"
+            metadata.loc[lambda x: x.text_id == text_id, "detected_language"] = detected_lang
             final_return = metadata
         else:
             final_return = None
