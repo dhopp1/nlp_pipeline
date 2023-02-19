@@ -208,7 +208,7 @@ def convert_to_text(metadata, data_path, text_id, windows_tesseract_path = None,
             
             # write text file
             file = open(f"{data_path}txt_files/{text_id}.txt", "wb+")
-            file.write(return_text.encode())
+            file.write(return_text.encode('utf-8', 'replace'))
             file.close()
             
             # update metadata file
