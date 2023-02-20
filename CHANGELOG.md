@@ -25,3 +25,8 @@
 
 ### Fixed
 * make robust to language detect issues
+
+## 0.0.6
+
+### Fixed
+* better detect some OCR PDFs

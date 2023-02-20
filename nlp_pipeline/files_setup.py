@@ -88,8 +88,11 @@ def parse_pdf(pdf_path):
     "parse a pdf and return text string"
     reader = PdfReader(pdf_path)
     return_text = ""
-    for i in range(len(reader.pages)):
-        return_text += "[newpage] " + reader.pages[i].extract_text()
+    if any(["OceScanCompression" in key for key in reader.metadata.keys()]):
+        return_text = "[newpage] "
+    else:
+        for i in range(len(reader.pages)):
+            return_text += "[newpage] " + reader.pages[i].extract_text()
         
     return return_text
 
