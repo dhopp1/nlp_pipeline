@@ -39,6 +39,23 @@ nltk_langdetect_dict = {
     'tg':'tajik',
     'tr':'turkish'
 }
+snowball_languages = [
+    'arabic',
+    'danish',
+    'dutch',
+    'english',
+    'finnish',
+    'french',
+    'german',
+    'hungarian',
+    'italian',
+    'norwegian',
+    'portuguese',
+    'romanian',
+    'russian',
+    'spanish',
+    'swedish'
+]
 def gen_nltk_lang_dict(dictionary, lang):
     try:
         return dictionary[lang]
@@ -91,6 +108,8 @@ def remove_stopwords(stringx, language):
 def stem(stringx, stemmer=None, language=None):
     "stem a string. snowball is less agressive, lancaster only works with english"
     if stemmer == "snowball":
+        if not(language in snowball_languages):
+            language = "english"
         stemmer = SnowballStemmer(gen_nltk_lang_dict(nltk_langdetect_dict, language))
     elif stemmer == "lancaster":
         stemmer = LancasterStemmer()

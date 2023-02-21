@@ -1,9 +1,30 @@
+
 # Change Log
 
-## 0.0.1
+## 0.0.7
+
+### Fixed
+* make robust to language not available for Snowball stemmer
+
+## 0.0.6
+
+### Fixed
+* better detect some OCR PDFs
+
+## 0.0.5
+
+### Fixed
+* make robust to language detect issues
+
+## 0.0.4
+
+### Fixed
+* fix writing UTF-8 characters to text
+
+## 0.0.3
 
 ### Added
-* initial release
+* add ploting for summary statistics
 
 ## 0.0.2
 
@@ -11,22 +32,7 @@
 * default to English stopwords if detected language isn't in NLTK stopwords list
 * catch more OCR PDFs
 
-## 0.0.3
+## 0.0.1
 
 ### Added
-* add ploting for summary statistics
-
-## 0.0.4
-
-### Fixed
-* fix writing UTF-8 characters to text
-
-## 0.0.5
-
-### Fixed
-* make robust to language detect issues
-
-## 0.0.6
-
-### Fixed
-* better detect some OCR PDFs
+* initial release
