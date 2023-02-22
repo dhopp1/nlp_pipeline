@@ -1,6 +1,11 @@
 
 # Change Log
 
+## 0.0.8
+
+### Added
+* ability to generate sentence-by-sentence sentiment report for a text_id or string with the `processor.gen_sentiment_report()` function
+
 ## 0.0.7
 
 ### Fixed

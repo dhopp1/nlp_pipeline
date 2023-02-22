@@ -102,4 +102,8 @@ p, plot_df = processor.plot_summary_stats(
     summary_stat_col = "n_words", # one of: n_words, n_unique_words, n_sentences, n_pages, avg_word_length, avg_word_incidence
     title = "Plot Title"
 )
+
+# get sentence-by-sentence sentiment report for a string or text_id
+sentiment_report = processor.gen_sentiment_report(text_id = 1) # to generate for a text_id
+sentiment_report = processor.gen_sentiment_report(stringx = "a new string.") # to generate for a new string
 ```

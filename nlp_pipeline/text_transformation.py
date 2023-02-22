@@ -135,11 +135,29 @@ def gen_word_count_dict(stringx, exclude_words):
 
     return counts
 
-def get_single_sentiment(stringx):
+def get_single_sentiment(stringx, sentiment_analyzer = SentimentIntensityAnalyzer):
     "get sentiment of a single string"
-    sia = SentimentIntensityAnalyzer()
+    sia = sentiment_analyzer()
     return sia.polarity_scores(stringx)  
 
 def get_word_frequency(word, language):
     "https://pypi.org/project/wordfreq/"
     return zipf_frequency(word, language)
+
+def gen_sentiment_report(stringx, sentiment_analyzer = SentimentIntensityAnalyzer):
+    "generate sentiment report of a string"
+    stringx = lower(stringx)
+    stringx = replace_newline_period(stringx)
+    stringx = remove_punctuation(stringx)
+    
+    string_list = stringx.split("|")
+    string_list = [x for x in string_list if len(set(x)) > 1]
+    sentiment_list = [get_single_sentiment(x, sentiment_analyzer)["compound"] for x in string_list]
+    
+    sentiment_report = pd.DataFrame({
+        "sentence_number": list(range(1,len(string_list)+1)),
+        "sentence": string_list,
+        "sentiment": sentiment_list
+    })
+    
+    return sentiment_report

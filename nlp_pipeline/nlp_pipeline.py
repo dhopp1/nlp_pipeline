@@ -1,4 +1,5 @@
 from importlib import import_module
+from nltk.sentiment import SentimentIntensityAnalyzer
 import pandas as pd
 import os
 
@@ -224,11 +225,33 @@ class nlp_processor:
             
             return (p, plot_data)
         
-    def gen_sentiment_csv(self, text_ids, path_prefix):
+    def gen_sentiment_report(self, text_id=None, stringx=None, sentiment_analyzer=SentimentIntensityAnalyzer):
+        """generate sentiment of phrases in a particular string or document
+        parameters:
+            :text_id: float: single text_id to generate report for
+            :stringx: str: string to generate report for. Either this or text_id should be blank
+            :sentiment_analyzer: nltk SentimentIntensityAnalyzer: which analyzer to use
+        output:
+            :pd.DataFrame: with columns:
+                :sentence_number: sentence id in the string
+                :sentence: the text of the sentence
+                :sentiment: sentiment of the sentence
+        """
+        if stringx is None:
+            txt_path = f"{self.data_path}txt_files/{text_id}.txt"
+            file = open(f"{txt_path}", "r", encoding = "UTF-8") 
+            stringx = file.read()
+            file.close()
+            
+        return self.text_transformation.gen_sentiment_report(stringx = stringx, sentiment_analyzer = sentiment_analyzer)
+        
+    def gen_sentiment_csv(self, text_ids, path_prefix, sentiment_analyzer = SentimentIntensityAnalyzer, overwrite = False):
         """generating average sentiment of documents. A higher score is more positive, lower is more negative. Depends on sentences being delimited by |
         parameters:
             :text_ids: list[float]: single text_id or list of them to perform the transformation(s) on
             :path_prefix: str: what the prefix of the files in the transformed_txt_files/ path is
+            :sentiment_analyzer: nltk SentimentIntensityAnalyzer: which analyzer to use
+            :overwrite: Boolean: whether or not to overwrite the sentiment score if one exists already
         output:
             :pd.DataFrame: with columns:
                 :text_id: text ids
@@ -263,14 +286,14 @@ class nlp_processor:
             
             # only do if txt path exists and hasn't already been run
             prior_value = csv.loc[csv.text_id == text_id, "avg_sentiment_w_neutral"].values[0]
-            if os.path.exists(txt_path) & ((str(prior_value) == "") | (str(prior_value) == "nan")):
+            if os.path.exists(txt_path) & (((str(prior_value) == "") | (str(prior_value) == "nan")) | overwrite):
                 # reading original text
                 file = open(f"{txt_path}", "r", encoding = "UTF-8") 
                 stringx = file.read()
                 file.close()
                 
                 # calculating sentiments
-                sentiments = [self.text_transformation.get_single_sentiment(x)["compound"] for x in stringx.split("|") if (len(x) > 3) & (len(x.split(" ")) > 2) & (not(x.isnumeric()))] # only do sentiment for sentences with more than 2 words and not numeric
+                sentiments = [self.text_transformation.get_single_sentiment(x, sentiment_analyzer)["compound"] for x in stringx.split("|") if (len(x) > 3) & (len(x.split(" ")) > 2) & (not(x.isnumeric()))] # only do sentiment for sentences with more than 2 words and not numeric
                 
                 # adding and writing to CSV
                 csv.loc[csv.text_id == text_id, "avg_sentiment_w_neutral"] = sum(sentiments) / len(sentiments)
