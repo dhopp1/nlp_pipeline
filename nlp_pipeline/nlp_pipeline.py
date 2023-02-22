@@ -297,7 +297,10 @@ class nlp_processor:
                 
                 # adding and writing to CSV
                 csv.loc[csv.text_id == text_id, "avg_sentiment_w_neutral"] = sum(sentiments) / len(sentiments)
-                csv.loc[csv.text_id == text_id, "avg_sentiment_wo_neutral"] = sum([x for x in sentiments if x != 0.0]) / len([x for x in sentiments if x != 0.0])
+                try:
+                    csv.loc[csv.text_id == text_id, "avg_sentiment_wo_neutral"] = sum([x for x in sentiments if x != 0.0]) / len([x for x in sentiments if x != 0.0])
+                except:
+                    csv.loc[csv.text_id == text_id, "avg_sentiment_wo_neutral"] = 0
                 csv.loc[csv.text_id == text_id, "neutral_proportion"] = len([x for x in sentiments if x == 0.0]) / len(sentiments)
                 csv.to_csv(csv_path, index = False)
                 
