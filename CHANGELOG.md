@@ -1,6 +1,11 @@
 
 # Change Log
 
+## 0.0.10
+
+### Fixed
+* make robust to sentiment divide by 0 errors
+
 ## 0.0.9
 
 ### Added

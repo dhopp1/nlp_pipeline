@@ -296,12 +296,14 @@ class nlp_processor:
                 sentiments = [self.text_transformation.get_single_sentiment(x, sentiment_analyzer)["compound"] for x in stringx.split("|") if (len(x) > 3) & (len(x.split(" ")) > 2) & (not(x.isnumeric()))] # only do sentiment for sentences with more than 2 words and not numeric
                 
                 # adding and writing to CSV
-                csv.loc[csv.text_id == text_id, "avg_sentiment_w_neutral"] = sum(sentiments) / len(sentiments)
                 try:
+                    csv.loc[csv.text_id == text_id, "avg_sentiment_w_neutral"] = sum(sentiments) / len(sentiments)
                     csv.loc[csv.text_id == text_id, "avg_sentiment_wo_neutral"] = sum([x for x in sentiments if x != 0.0]) / len([x for x in sentiments if x != 0.0])
+                    csv.loc[csv.text_id == text_id, "neutral_proportion"] = len([x for x in sentiments if x == 0.0]) / len(sentiments)
                 except:
+                    csv.loc[csv.text_id == text_id, "avg_sentiment_w_neutral"] = 0
                     csv.loc[csv.text_id == text_id, "avg_sentiment_wo_neutral"] = 0
-                csv.loc[csv.text_id == text_id, "neutral_proportion"] = len([x for x in sentiments if x == 0.0]) / len(sentiments)
+                    csv.loc[csv.text_id == text_id, "neutral_proportion"] = 0
                 csv.to_csv(csv_path, index = False)
                 
                 
