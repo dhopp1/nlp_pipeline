@@ -142,7 +142,11 @@ def get_single_sentiment(stringx, sentiment_analyzer = SentimentIntensityAnalyze
 
 def get_word_frequency(word, language):
     "https://pypi.org/project/wordfreq/"
-    return zipf_frequency(word, language)
+    try:
+        freq = zipf_frequency(word, language)
+    except:
+        freq = zipf_frequency(word, "en")
+    return freq
 
 def gen_sentiment_report(stringx, sentiment_analyzer = SentimentIntensityAnalyzer):
     "generate sentiment report of a string"

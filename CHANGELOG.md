@@ -1,6 +1,11 @@
 
 # Change Log
 
+## 0.0.11
+
+### Fixed
+* make robust to word incidence language not found
+
 ## 0.0.10
 
 ### Fixed
