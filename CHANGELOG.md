@@ -1,6 +1,10 @@
 
 # Change Log
 
+## 0.0.12
+### Fixed
+* make pdf conversion more robust to errors
+
 ## 0.0.11
 
 ### Fixed
