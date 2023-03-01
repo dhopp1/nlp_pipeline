@@ -200,12 +200,18 @@ def convert_to_text(metadata, data_path, text_id, windows_tesseract_path = None,
         if not(os.path.isfile(f"{data_path}txt_files/{text_id}.txt")):
             # pdf file
             if ".pdf" in raw_path:
-                return_text = parse_pdf(raw_path)
-                if (len(set(return_text.split("[newpage] "))) == 1) | ((return_text.lower().count("/g") / len(return_text)) > 0.01) | (return_text.lower().count("_") / len(return_text) > 0.05) | (return_text.lower().count("sqj") > 10): # if only empties, scan, needs to be OCR converted. If bunch of "/G"s, greater than 1% of all the characters, encoding error, like review of maritime transport 2006. Or if poorly digitized and a lot of 'sqj's. Force OCR.
-                    return_text = parse_ocr_pdf(data_path, raw_path, windows_tesseract_path, windows_poppler_path)
-                    # remove temporary image files from OCR
-                    for f in glob.glob(f"{data_path}*.jpg"):
-                        os.remove(f)
+                try:
+                    return_text = parse_pdf(raw_path)
+                except:
+                    return_text = ""
+                try:
+                    if (len(set(return_text.split("[newpage] "))) == 1) | ((return_text.lower().count("/g") / len(return_text)) > 0.01) | (return_text.lower().count("_") / len(return_text) > 0.05) | (return_text.lower().count("sqj") > 10): # if only empties, scan, needs to be OCR converted. If bunch of "/G"s, greater than 1% of all the characters, encoding error, like review of maritime transport 2006. Or if poorly digitized and a lot of 'sqj's. Force OCR.
+                        return_text = parse_ocr_pdf(data_path, raw_path, windows_tesseract_path, windows_poppler_path)
+                        # remove temporary image files from OCR
+                        for f in glob.glob(f"{data_path}*.jpg"):
+                            os.remove(f)
+                except:
+                    return_text = ""
             elif ".html" in raw_path:
                 return_text = parse_html(raw_path)
             
