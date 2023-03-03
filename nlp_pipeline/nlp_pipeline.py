@@ -420,12 +420,18 @@ class nlp_processor:
                 
                 # calculating avg_word_length
                 avg_word_length = [len(x) for x in orig_stringx.split(" ") if len(x) > 1]
-                avg_word_length = sum(avg_word_length) / len(avg_word_length)
+                try:
+                    avg_word_length = sum(avg_word_length) / len(avg_word_length)
+                except:
+                    avg_word_length = 0
                 
                 # calculating 
                 word_list = [x for x in orig_stringx.split(" ") if len(x) > 1]
                 avg_word_incidence = [self.text_transformation.get_word_frequency(x, language) for x in word_list]
-                avg_word_incidence = sum(avg_word_incidence) / len(avg_word_incidence)
+                try:
+                    avg_word_incidence = sum(avg_word_incidence) / len(avg_word_incidence)
+                except:
+                    avg_word_incidence = 0
                 
                 # adding and writing to CSV
                 csv.loc[csv.text_id == text_id, "n_words"] = n_words
