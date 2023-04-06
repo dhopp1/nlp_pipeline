@@ -461,3 +461,17 @@ class nlp_processor:
             csv = pd.read_csv(csv_path)
             p, plot_df = self.visualizations.plot_summary_stats(csv, text_ids_list, x_labels, title, summary_stats_col)
             return (p, plot_df)
+        
+        
+    def plot_text_similarity(self, text_ids, label_column = "text_id", figsize = (22,16)):
+        """get plot of text similarities.
+        parameters:
+            :text_ids_list: list[int]: list of text_ids to compare similarity
+            :label_column: str: what column from the metadata file to use for labelling on the plot
+            :figsize: tuple(int): size of the plot
+        output:
+            heat map similarity plot
+            :pd.DataFrame: with rows and columns showing pairwise text similarity
+            :list[str]: axis labels
+        """
+        return self.visualizations.gen_similarity_plot(self, text_ids, label_column, figsize)

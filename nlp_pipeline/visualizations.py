@@ -1,6 +1,9 @@
 import pandas as pd
 import matplotlib.pyplot as plt
+from sklearn.feature_extraction.text import TfidfVectorizer
+import seaborn as sns
 from wordcloud import WordCloud
+
 
 def convert_word_count_dict_to_df(df):
     "helper function to convert word counts dictionaries to one dataframe"
@@ -139,3 +142,41 @@ def plot_sentiment(df, text_ids_list, x_labels = None, title = "", sentiment_col
     plt.title(f"{title} {subtitle}")
     
     return (p, pd.DataFrame({"x_label":x_labels, "value":values}))
+
+
+def gen_similarity(processor, text_ids):
+    "generate text similary matrix from TF-IDF cosine similarity"
+    docs = []
+    
+    for text_id in text_ids:
+        text_path = processor.metadata.loc[lambda x: x.text_id == text_id, "local_txt_filepath"].values[0]
+        file = open(f"{text_path}", "r", encoding = "UTF-8") 
+        stringx = file.read()
+        file.close()
+        
+        docs.append(stringx)
+    
+    tfidf = TfidfVectorizer().fit_transform(docs)
+    pairwise_similarity = tfidf * tfidf.T
+    
+    # text ids for rows and columns
+    df = pd.DataFrame(pairwise_similarity.toarray())
+    df.columns = text_ids
+    df["text_id"] = text_ids
+    df = df.set_index("text_id", drop=True)
+    
+    return df
+
+
+def gen_similarity_plot(processor, text_ids, label_column = "text_id", figsize = (22, 16)):
+    "plot text similarity matrix. Label column is metadata column to rename text ids"
+    df = gen_similarity(processor, text_ids)
+    
+    x_axis_labels = [processor.metadata.loc[lambda x: x.text_id == text_id, label_column].values[0] for text_id in text_ids] # labels for x-axis
+    y_axis_labels = x_axis_labels
+    
+    p = plt.figure(figsize=figsize)
+    sns.heatmap(df, cmap="Reds", xticklabels=x_axis_labels, yticklabels=y_axis_labels, annot=True)
+    plt.ylabel("")
+    
+    return (p, df, x_axis_labels)

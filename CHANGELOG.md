@@ -1,6 +1,10 @@
 
 # Change Log
 
+## 0.0.14
+### Added
+* ability to calculate and plot text similarity with `processor.plot_text_similarity` function
+
 ## 0.0.13
 ### Fixed
 * make word length and incidence more robust to errors
@@ -52,7 +56,7 @@
 ## 0.0.3
 
 ### Added
-* add ploting for summary statistics
+* add plotting for summary statistics
 
 ## 0.0.2
 
