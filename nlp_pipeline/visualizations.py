@@ -1,9 +1,9 @@
 import pandas as pd
 import matplotlib.pyplot as plt
+from sklearn.decomposition import PCA
 from sklearn.feature_extraction.text import TfidfVectorizer
 import seaborn as sns
 from wordcloud import WordCloud
-
 
 def convert_word_count_dict_to_df(df):
     "helper function to convert word counts dictionaries to one dataframe"
@@ -19,7 +19,6 @@ def convert_word_count_dict_to_df(df):
     
     return clean_data
     
-
 def bar_plot_word_count(df, n_words, title=""):
     "get a bar plot of top words"
     plot_df = df.iloc[:n_words,:].reset_index(drop=True)
@@ -143,7 +142,6 @@ def plot_sentiment(df, text_ids_list, x_labels = None, title = "", sentiment_col
     
     return (p, pd.DataFrame({"x_label":x_labels, "value":values}))
 
-
 def gen_similarity(processor, text_ids):
     "generate text similary matrix from TF-IDF cosine similarity"
     docs = []
@@ -167,7 +165,6 @@ def gen_similarity(processor, text_ids):
     
     return df
 
-
 def gen_similarity_plot(processor, text_ids, label_column = "text_id", figsize = (22, 16)):
     "plot text similarity matrix. Label column is metadata column to rename text ids"
     df = gen_similarity(processor, text_ids)
@@ -180,3 +177,37 @@ def gen_similarity_plot(processor, text_ids, label_column = "text_id", figsize =
     plt.ylabel("")
     
     return (p, df, x_axis_labels)
+
+def gen_cluster_df(processor, text_id_dict):
+    "given dict of groups + text ids, return two principal components of text similarity"
+    # flattened list of all text_ids
+    flattened_list = [item for sublist in list(text_id_dict.values()) for item in sublist]
+    similarities = processor.plot_text_similarity(flattened_list)[1]
+    
+    # initialize empty dataframe
+    df = pd.DataFrame(columns = ["text_id"] + list(text_id_dict.keys()))
+    df["text_id"] = flattened_list
+        
+    # PCA to reduce to 2 axes
+    pca = PCA(n_components = 2, random_state = 42)
+    
+    # pass our X to the pca and store the reduced vectors into pca_vecs
+    pca_vecs = pca.fit_transform(similarities.values)
+    
+    plot_df = pd.DataFrame({
+        "text_id": flattened_list,
+        "group": [list(filter(lambda x: text_id in text_id_dict[x], text_id_dict))[0] for text_id in flattened_list],
+        "pc1": pca_vecs[:,0],
+        "pc2": pca_vecs[:,1]
+    })
+    
+    return plot_df
+
+def plot_cluster(plot_df, color_column): 
+    "scatter plot of a cluster df. color_column = column of cluster df to ues for coloring groups"
+    p = plt.figure()
+    sns.scatterplot("pc1", "pc2", data=plot_df, hue=color_column)
+    plt.ylabel("")
+    plt.xlabel("")
+    
+    return p

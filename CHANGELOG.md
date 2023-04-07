@@ -1,6 +1,10 @@
 
 # Change Log
 
+## 0.0.15
+### Added
+* ability to create text similarity cluster plots
+
 ## 0.0.14
 ### Added
 * ability to calculate and plot text similarity with `processor.plot_text_similarity` function

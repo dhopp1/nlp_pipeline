@@ -305,8 +305,7 @@ class nlp_processor:
                     csv.loc[csv.text_id == text_id, "avg_sentiment_wo_neutral"] = 0
                     csv.loc[csv.text_id == text_id, "neutral_proportion"] = 0
                 csv.to_csv(csv_path, index = False)
-                
-                
+                             
     def plot_word_occurrences(self, text_ids_list, word, path_prefix, x_labels = None, title = ""):
         """get plot of occurrences of a particular word over groups of documents. Searches for contains rather than exact matches.
         parameters:
@@ -326,8 +325,7 @@ class nlp_processor:
             p, plot_df = self.visualizations.plot_word_occurrences(csv, text_ids_list, word, x_labels, title)
             
             return (p, plot_df)
-        
-        
+           
     def plot_sentiment(self, text_ids_list, path_prefix, x_labels = None, title = "", sentiment_col = "avg_sentiment_wo_neutral"):
         """get plot of sentiment of a particular word over groups of documents. Searches for contains rather than exact matches.
         parameters:
@@ -441,7 +439,7 @@ class nlp_processor:
                 csv.loc[csv.text_id == text_id, "avg_word_length"] = avg_word_length
                 csv.loc[csv.text_id == text_id, "avg_word_incidence"] = avg_word_incidence
                 csv.to_csv(csv_path, index = False)
-                
+                             
     def plot_summary_stats(self, text_ids_list, path_prefix, x_labels = None, title = "", summary_stats_col = "n_words"):
         """get plot of various summary statistics over groups of documents.
         parameters:
@@ -461,10 +459,9 @@ class nlp_processor:
             csv = pd.read_csv(csv_path)
             p, plot_df = self.visualizations.plot_summary_stats(csv, text_ids_list, x_labels, title, summary_stats_col)
             return (p, plot_df)
-        
-        
+           
     def plot_text_similarity(self, text_ids, label_column = "text_id", figsize = (22,16)):
-        """get plot of text similarities.
+        """get plot of text similarities using TF-IDF.
         parameters:
             :text_ids_list: list[int]: list of text_ids to compare similarity
             :label_column: str: what column from the metadata file to use for labelling on the plot
@@ -475,3 +472,24 @@ class nlp_processor:
             :list[str]: axis labels
         """
         return self.visualizations.gen_similarity_plot(self, text_ids, label_column, figsize)
+    
+    def gen_cluster_df(self, text_id_dict):
+        """"given dict of groups + text ids, return two principal components of text similarity via pairwise  TF-IDF
+        parameters:
+            :text_id_dict: dict{str: list[int]}: keys = grouping of text ids (e.g., publication, year, etc.), values = list of text_ids in group
+        output:
+            :pd.DataFrame: with columns:
+                :text_id: text ids
+                :group: group of each text id (from the keys of text_id_dict)
+                :pc1: first principal component 
+                :pc2: second principal component
+        """
+        return self.visualizations.gen_cluster_df(self, text_id_dict)
+    
+    def plot_cluster(self, plot_df, color_column = "group"):
+        """"given a PCA cluster df, return a scatter plot of text similarity
+        parameters:
+            :plot_df: pd.DataFrame: output from gen_cluster_df() function
+            :color_column: str: column to color scatterplot groups by. Defaults to "group".
+        """
+        return self.visualizations.plot_cluster(plot_df, color_column)

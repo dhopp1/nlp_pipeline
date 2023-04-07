@@ -106,4 +106,11 @@ p, plot_df = processor.plot_summary_stats(
 # get sentence-by-sentence sentiment report for a string or text_id
 sentiment_report = processor.gen_sentiment_report(text_id = 1) # to generate for a text_id
 sentiment_report = processor.gen_sentiment_report(stringx = "a new string.") # to generate for a new string
+
+# similarity heat map plot between documents
+p, plot_df, xaxis_labels = processor.plot_text_similarity(text_ids, label_column = "text_id")
+
+# similarity of documents cluster plot
+plot_df = processor.gen_cluster_df(text_id_dict) # dictionary of groups and text_ids within the group
+p = processor.plot_cluster(plot_df, group_column = "group")
 ```
