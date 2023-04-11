@@ -460,10 +460,11 @@ class nlp_processor:
             p, plot_df = self.visualizations.plot_summary_stats(csv, text_ids_list, x_labels, title, summary_stats_col)
             return (p, plot_df)
            
-    def plot_text_similarity(self, text_ids, label_column = "text_id", figsize = (22,16)):
+    def plot_text_similarity(self, text_ids, path_prefix = "", label_column = "text_id", figsize = (22,16)):
         """get plot of text similarities using TF-IDF.
         parameters:
             :text_ids_list: list[int]: list of text_ids to compare similarity
+            :path_prefix: str: what the prefix of the files in the transformed_txt_files/ path is, leave blank for raw, untransformed text
             :label_column: str: what column from the metadata file to use for labelling on the plot
             :figsize: tuple(int): size of the plot
         output:
@@ -471,12 +472,13 @@ class nlp_processor:
             :pd.DataFrame: with rows and columns showing pairwise text similarity
             :list[str]: axis labels
         """
-        return self.visualizations.gen_similarity_plot(self, text_ids, label_column, figsize)
+        return self.visualizations.gen_similarity_plot(self, text_ids, path_prefix, label_column, figsize)
     
-    def gen_cluster_df(self, text_id_dict):
+    def gen_cluster_df(self, text_id_dict, path_prefix = ""):
         """"given dict of groups + text ids, return two principal components of text similarity via pairwise  TF-IDF
         parameters:
             :text_id_dict: dict{str: list[int]}: keys = grouping of text ids (e.g., publication, year, etc.), values = list of text_ids in group
+            :path_prefix: str: what the prefix of the files in the transformed_txt_files/ path is, leave blank for raw, untransformed text
         output:
             :pd.DataFrame: with columns:
                 :text_id: text ids
@@ -484,7 +486,7 @@ class nlp_processor:
                 :pc1: first principal component 
                 :pc2: second principal component
         """
-        return self.visualizations.gen_cluster_df(self, text_id_dict)
+        return self.visualizations.gen_cluster_df(self, text_id_dict, path_prefix)
     
     def plot_cluster(self, plot_df, color_column = "group"):
         """"given a PCA cluster df, return a scatter plot of text similarity

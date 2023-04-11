@@ -142,12 +142,15 @@ def plot_sentiment(df, text_ids_list, x_labels = None, title = "", sentiment_col
     
     return (p, pd.DataFrame({"x_label":x_labels, "value":values}))
 
-def gen_similarity(processor, text_ids):
+def gen_similarity(processor, text_ids, path_prefix = ""):
     "generate text similary matrix from TF-IDF cosine similarity"
     docs = []
     
     for text_id in text_ids:
-        text_path = processor.metadata.loc[lambda x: x.text_id == text_id, "local_txt_filepath"].values[0]
+        if path_prefix == "":
+            text_path = processor.metadata.loc[lambda x: x.text_id == text_id, "local_txt_filepath"].values[0]
+        else:
+            text_path = f"{processor.data_path}transformed_txt_files/{path_prefix}_{text_id}.txt"
         file = open(f"{text_path}", "r", encoding = "UTF-8") 
         stringx = file.read()
         file.close()
@@ -165,9 +168,9 @@ def gen_similarity(processor, text_ids):
     
     return df
 
-def gen_similarity_plot(processor, text_ids, label_column = "text_id", figsize = (22, 16)):
+def gen_similarity_plot(processor, text_ids, path_prefix = "", label_column = "text_id", figsize = (22, 16)):
     "plot text similarity matrix. Label column is metadata column to rename text ids"
-    df = gen_similarity(processor, text_ids)
+    df = gen_similarity(processor, text_ids, path_prefix)
     
     x_axis_labels = [processor.metadata.loc[lambda x: x.text_id == text_id, label_column].values[0] for text_id in text_ids] # labels for x-axis
     y_axis_labels = x_axis_labels
@@ -178,11 +181,11 @@ def gen_similarity_plot(processor, text_ids, label_column = "text_id", figsize =
     
     return (p, df, x_axis_labels)
 
-def gen_cluster_df(processor, text_id_dict):
+def gen_cluster_df(processor, text_id_dict, path_prefix = ""):
     "given dict of groups + text ids, return two principal components of text similarity"
     # flattened list of all text_ids
     flattened_list = [item for sublist in list(text_id_dict.values()) for item in sublist]
-    similarities = processor.plot_text_similarity(flattened_list)[1]
+    similarities = processor.plot_text_similarity(flattened_list, path_prefix)[1]
     
     # initialize empty dataframe
     df = pd.DataFrame(columns = ["text_id"] + list(text_id_dict.keys()))
