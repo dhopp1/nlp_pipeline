@@ -1,6 +1,10 @@
 
 # Change Log
 
+## 0.0.16
+### Added
+* better detect some OCR PDFs
+
 ## 0.0.15
 ### Added
 * ability to create text similarity cluster plots
