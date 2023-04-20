@@ -495,3 +495,51 @@ class nlp_processor:
             :color_column: str: column to color scatterplot groups by. Defaults to "group".
         """
         return self.visualizations.plot_cluster(plot_df, color_column)
+    
+    
+    def gen_entity_count_csv(self, text_ids):
+        """Gets entity counts from files in txt_files/ directory and writes them to CSV. May have to run "python -m spacy download en_core_web_lg", or equivalent for interested language. See https://spacy.io/models/ for more information. Works from the raw, untransformed text, since capitalization is important for NER.
+        parameters:
+            :text_ids: list[float]: single text_id or list of them to perform the transformation(s)
+        """
+        
+        if type(text_ids) != list:
+            text_ids = [text_ids]
+        
+        # check if CSV already exists
+        csv_path = f"{self.data_path}csv_outputs/entity_counts.csv"
+        
+        if os.path.exists(csv_path):
+            csv = pd.read_csv(csv_path)
+        else:
+            csv = pd.DataFrame({
+                "text_id": self.metadata.text_id.values,
+                "entity_count_dict": ""
+            })
+        
+        counter = 1
+        for text_id in text_ids:
+            print(f"creating entity count dictionary: {counter}/{len(text_ids)}")
+            counter += 1
+            
+            text_path = f"{self.data_path}txt_files/{text_id}.txt"
+            
+            # only perform if text file exists and hasn't already been run
+            prior_value = csv.loc[csv.text_id == text_id, "entity_count_dict"].values[0]
+            if os.path.exists(text_path) & ((str(prior_value) == "") | (str(prior_value) == "nan")):
+                # reading original text
+                file = open(f"{text_path}", "r", encoding = "UTF-8") 
+                stringx = file.read()
+                file.close()
+                
+                lang = self.metadata.loc[lambda x: x.text_id == text_id, "detected_language"].values[0]
+                
+                try:
+                    entity_dict = self.text_transformation.gen_entity_count_dict(stringx, lang)
+                except:
+                    print(f"language {lang} not found, performing with English")
+                    entity_dict = self.text_transformation.gen_entity_count_dict(stringx, "en")
+                    
+                # adding and writing to CSV
+                csv.loc[csv.text_id == text_id, "entity_count_dict"] = str(entity_dict)
+                csv.to_csv(csv_path, index = False)

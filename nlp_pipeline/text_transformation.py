@@ -5,10 +5,11 @@ from nltk.corpus import stopwords
 from nltk.stem.snowball import SnowballStemmer
 from nltk.stem.lancaster import LancasterStemmer
 from nltk.sentiment import SentimentIntensityAnalyzer
+import spacy
 from wordfreq import zipf_frequency
 import os
 
-# key between langdetect language ISO code and NLTK's names for snowball and stopwords
+# key between langdetect language ISO code and NLTK's names for snowball, stopwords, and entity detection
 nltk_langdetect_dict = {
     'ar':'arabic',
     'az':'azerbaijani',
@@ -56,11 +57,43 @@ snowball_languages = [
     'spanish',
     'swedish'
 ]
+
+spacy_entity_lang_dict = {
+    'ca': 'ca_core_news_lg',
+    'zh': 'zh_core_web_lg',
+    'hr': 'hr_core_news_lg',
+    'nl': 'nl_core_news_lg',
+    'en': 'en_core_web_lg',
+    'fi': 'fi_core_news_lg',
+    'fr': 'fr_core_news_lg',
+    'de': 'de_core_news_lg',
+    'el': 'el_core_news_lg',
+    'it': 'it_core_news_lg',
+    'ja': 'ja_core_news_lg',
+    'ko': 'ko_core_news_lg',
+    'lt': 'lt_core_news_lg',
+    'mk': 'mk_core_news_lg',
+    'no': 'nb_core_news_lg',
+    'pl': 'pl_core_news_lg',
+    'pt': 'pt_core_news_lg',
+    'ro': 'ro_core_news_lg',
+    'ru': 'ru_core_news_lg',
+    'es': 'es_core_news_lg',
+    'sv': 'sv_core_news_lg',
+    'uk': 'uk_core_news_lg'
+}
+
 def gen_nltk_lang_dict(dictionary, lang):
     try:
         return dictionary[lang]
     except:
         return "english"
+    
+def gen_spacy_entity_lang_dict(dictionary, lang):
+    try:
+        return dictionary[lang]
+    except:
+        return "en_core_web_lg"
 
 def lower(stringx):
     "lower case the text"
@@ -165,3 +198,22 @@ def gen_sentiment_report(stringx, sentiment_analyzer = SentimentIntensityAnalyze
     })
     
     return sentiment_report
+
+def gen_entity_count_dict(stringx, lang):
+    "create a dictionary of entity counts in a string"
+    stringx = stringx.replace("\n", " ") # get rid of newline character if present
+    stringx = stringx.replace("[newpage]", " ") # get rid of newpage character if present
+    
+    spacy_model = gen_spacy_entity_lang_dict(spacy_entity_lang_dict, lang)
+    ner = spacy.load(spacy_model)
+    text = ner(stringx)
+    
+    tmp = pd.DataFrame({
+        "entity": [ent.text for ent in text.ents],
+        "label": [ent.label_ for ent in text.ents]
+    })
+    tmp = tmp.groupby(["entity", "label"])["entity"].count().sort_values(ascending = False)
+    
+    counts = dict(zip([x[0] + "|" + x[1] for x in tmp.index], tmp.values))
+    
+    return counts

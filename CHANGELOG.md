@@ -1,6 +1,10 @@
 
 # Change Log
 
+## 0.0.17
+### Added
+* named entity recognition (NER), counts of entities in each text
+
 ## 0.0.16
 ### Added
 * better detect some OCR PDFs

@@ -5,11 +5,12 @@ nltk==3.5
 pandas==1.2.0
 pdf2image==1.16.2
 Pillow==8.1.0
-pytesseract=0.3.10
+pytesseract==0.3.10
 PyPDF2==3.0.1
 scikit-learn==1.2.2
 seaborn==0.11.2
 snowballstemmer==2.1.0
+spacy==3.5.2
 wordcloud==1.8.2.2
 wordfreq==3.0.3
 # poppler (https://poppler.freedesktop.org/)

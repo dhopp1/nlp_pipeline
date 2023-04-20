@@ -1,3 +1,4 @@
+
 # nlp_pipeline
 Collection of NLP tools for processing and analyzing text data.
 
@@ -53,6 +54,11 @@ processor.gen_word_count_csv(
         text_ids = text_ids, 
         path_prefix = "all_transformed", # prefix used previously for the transformation
         exclude_words = ["for"] # list of words to not include in the word counts
+)
+
+# from the raw, untransformed text, generate a CSV with entity counts in each document
+processor.gen_entity_count_csv(
+	text_ids = text_ids
 )
 
 # get sentiment of a group of texts
