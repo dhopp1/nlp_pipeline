@@ -1,6 +1,10 @@
 
 # Change Log
 
+## 0.0.18
+### Fixed
+* NER for longer texts
+
 ## 0.0.17
 ### Added
 * named entity recognition (NER), counts of entities in each text

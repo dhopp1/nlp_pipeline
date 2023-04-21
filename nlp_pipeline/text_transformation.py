@@ -206,6 +206,7 @@ def gen_entity_count_dict(stringx, lang):
     
     spacy_model = gen_spacy_entity_lang_dict(spacy_entity_lang_dict, lang)
     ner = spacy.load(spacy_model)
+    ner.max_length = len(stringx)
     text = ner(stringx)
     
     tmp = pd.DataFrame({
