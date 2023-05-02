@@ -543,3 +543,20 @@ class nlp_processor:
                 # adding and writing to CSV
                 csv.loc[csv.text_id == text_id, "entity_count_dict"] = str(entity_dict)
                 csv.to_csv(csv_path, index = False)
+                
+    def train_bertopic_model(self, text_ids, model_name, notes = "", split_by_n_words = None):
+        """"train a BERTopic model from a set of text_ids and saves it to {data_path}/bertopic_models/{model_name}/model
+        parameters:
+            :text_ids: list[int]: single text_id or list of them to train the topic model
+            :model_name: str: descriptive name of the model, will create a directory of this name
+            :notes: str: commentary/notes on the model
+            :split_by_n_words: int: split longer documents into smaller ones of this word length, leave as None to split by page
+        """
+        self.text_transformation.train_bertopic_model(self, text_ids, model_name, notes, split_by_n_words)
+        
+    def load_bertopic_model(self, model_name):
+        """"load a trained BERTopic model
+        parameters:
+            :model_name: str: descriptive name of the model
+        """
+        return self.text_transformation.load_bertopic_model(self, model_name)

@@ -8,6 +8,9 @@ from nltk.sentiment import SentimentIntensityAnalyzer
 import spacy
 from wordfreq import zipf_frequency
 import os
+from bertopic import BERTopic
+from sentence_transformers import SentenceTransformer
+from sklearn.feature_extraction.text import CountVectorizer
 
 # key between langdetect language ISO code and NLTK's names for snowball, stopwords, and entity detection
 nltk_langdetect_dict = {
@@ -218,3 +221,82 @@ def gen_entity_count_dict(stringx, lang):
     counts = dict(zip([x[0] + "|" + x[1] for x in tmp.index], tmp.values))
     
     return counts
+
+def doc_split(processor, text_ids, split_by_page = True, split_by_n_words=500):
+    "split a document into page-sized or n_words length documents"
+    doc_list = pd.DataFrame(columns = ["text_id", "doc"])
+    for text_id in text_ids:
+        file_path = processor.metadata.loc[lambda x: x.text_id == text_id, "local_txt_filepath"].values[0]
+        
+        # read file
+        file = open(f"{file_path}", "r", encoding = "UTF-8") 
+        stringx = file.read()
+        file.close()
+        
+        # split into documents
+        if split_by_page:
+            tmp = pd.DataFrame({
+                "text_id": text_id,
+                "doc": stringx.split("[newpage]")
+            }).loc[lambda x: x.doc.str.len() > 3, :].reset_index(drop=True)
+        else: 
+            split_string = stringx.split()
+            doc_string = [" ".join(split_string[i:(i + split_by_n_words)]) for i in range(0, len(split_string), split_by_n_words)]
+            
+            tmp = pd.DataFrame({
+                "text_id": text_id,
+                "doc": doc_string
+            })
+            
+        # combine to main list
+        doc_list = pd.concat([doc_list, tmp], ignore_index = True)
+        
+    return doc_list
+
+def train_bertopic_model(processor, text_ids, model_name, notes="", split_by_n_words = None):
+    "train a bertopic model based off a set of text_ids"
+    # getting stopwords of majority language of documents
+    majority_language = list(processor.metadata.loc[lambda x: x.text_id.isin(text_ids), "detected_language"].values)
+    majority_language = max(set(majority_language), key=majority_language.count)
+    lang_stopwords = stopwords.words(gen_nltk_lang_dict(nltk_langdetect_dict, majority_language))
+    vectorizer_model = CountVectorizer(stop_words=lang_stopwords)
+    
+    # creating doc_list
+    if split_by_n_words == None:
+        doc_list = doc_split(processor, text_ids)
+    else:
+        doc_list = doc_split(processor, text_ids, split_by_page = False, split_by_n_words = split_by_n_words)
+
+    # training the model
+    print("training BERTopic model...")
+    model = BERTopic(vectorizer_model=vectorizer_model)
+    topics, probs = model.fit_transform(doc_list.doc.values)
+    
+    # create BERTopic directory if it doesn't exist
+    if not os.path.exists(f"{processor.data_path}bertopic_models/"):
+        os.makedirs(f"{processor.data_path}bertopic_models/")
+    if not os.path.exists(f"{processor.data_path}bertopic_models/{model_name}/"):
+        os.makedirs(f"{processor.data_path}bertopic_models/{model_name}/")
+        
+    # model metadata file
+    if not os.path.exists(f"{processor.data_path}bertopic_models/model_metadata.csv"):
+        metadata = pd.DataFrame(columns = ["model_name", "notes", "text_ids"])
+    else:
+        metadata = pd.read_csv(f"{processor.data_path}bertopic_models/model_metadata.csv")
+    tmp_metadata = pd.DataFrame({
+        "model_name": model_name,
+        "notes": notes,
+        "text_ids": str(text_ids)
+    }, index = [0])
+    metadata = pd.concat([metadata, tmp_metadata], ignore_index = True)
+    
+    print(f"saving BERTopic model to {processor.data_path}bertopic_models/{model_name}/model...")
+    model.save(f"{processor.data_path}bertopic_models/{model_name}/model")
+    print("model trained and saved")
+    
+    metadata.to_csv(f"{processor.data_path}bertopic_models/model_metadata.csv", index = False)
+    
+def load_bertopic_model(processor, model_name):
+    "load a previously trained bertopic model"
+    model = BERTopic.load(f"{processor.data_path}bertopic_models/{model_name}/model")
+    return model

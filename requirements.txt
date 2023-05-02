@@ -1,3 +1,4 @@
+bertopic==0.14.1
 bs4==0.0.1
 langdetect==1.0.9
 matplotlib==3.3.4
@@ -9,6 +10,7 @@ pytesseract==0.3.10
 PyPDF2==3.0.1
 scikit-learn==1.2.2
 seaborn==0.11.2
+sentence_transformers==2.2.2
 snowballstemmer==2.1.0
 spacy==3.5.2
 wordcloud==1.8.2.2
