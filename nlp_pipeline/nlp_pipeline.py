@@ -570,5 +570,5 @@ class nlp_processor:
             :**kwargs: keyword arguments of the visualization function, e.g., top_n_topics = 10
         """
         model = self.load_bertopic_model(model_name)
-        self.visualizations.bertopic_visualize(self, model, model_name, method_name, plot_name, *args, **kwargs)
+        self.text_transformation.bertopic_visualize(self, model, model_name, method_name, plot_name, *args, **kwargs)
         print(f"plot saved to {self.data_path}bertopic_models/{model_name}/{plot_name}.html")

@@ -287,7 +287,7 @@ def train_bertopic_model(processor, text_ids, model_name, notes="", split_by_n_w
         
     # model metadata file
     if not os.path.exists(f"{processor.data_path}bertopic_models/model_metadata.csv"):
-        metadata = pd.DataFrame(columns = ["model_name", "notes", "text_ids", "document_ids"])
+        metadata = pd.DataFrame(columns = ["model_name", "notes", "text_ids", "document_ids", "split_by_n_words"])
     else:
         metadata = pd.read_csv(f"{processor.data_path}bertopic_models/model_metadata.csv")
 
@@ -298,7 +298,8 @@ def train_bertopic_model(processor, text_ids, model_name, notes="", split_by_n_w
         "model_name": model_name,
         "notes": notes,
         "text_ids": str(text_ids),
-        "document_ids": str(doc_count)
+        "document_ids": str(doc_count),
+        "split_by_n_words": str(split_by_n_words)
     }, index = [0])
     metadata = pd.concat([metadata, tmp_metadata], ignore_index = True)
     
@@ -312,3 +313,27 @@ def load_bertopic_model(processor, model_name):
     "load a previously trained bertopic model"
     model = BERTopic.load(f"{processor.data_path}bertopic_models/{model_name}/model")
     return model
+
+def bertopic_visualize(processor, model, model_name, method_name, plot_name, *args, **kwargs):
+    "save visualizations from a bertopic model to html"
+    # cluster plot needs the list of documents
+    if method_name == "visualize_documents":
+        metadata = pd.read_csv(f"{processor.data_path}bertopic_models/model_metadata.csv")
+        text_ids = eval(metadata.loc[lambda x: x.model_name == model_name, "text_ids"].values[0])
+        split_by_n_words = eval(metadata.loc[lambda x: x.model_name == model_name, "split_by_n_words"].values[0])
+        if split_by_n_words == None:
+            split_by_page = True
+        else:
+            split_by_page = False
+        docs = (doc_split(processor, text_ids, split_by_page, split_by_n_words).doc.values)
+        sentence_model = SentenceTransformer("all-MiniLM-L6-v2")
+        
+        print("getting embeddings...")
+        embeddings = sentence_model.encode(docs, show_progress_bar=False)
+        
+        fig = model.visualize_documents(docs, embeddings=embeddings)
+    else:
+        func = getattr(model, method_name)
+        fig = func(*args, **kwargs)
+    
+    fig.write_html(f"{processor.data_path}bertopic_models/{model_name}/{plot_name}.html")
