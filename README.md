@@ -119,4 +119,50 @@ p, plot_df, xaxis_labels = processor.plot_text_similarity(text_ids, label_column
 # similarity of documents cluster plot
 plot_df = processor.gen_cluster_df(text_id_dict) # dictionary of groups and text_ids within the group
 p = processor.plot_cluster(plot_df, group_column = "group")
+
+# train a BERTopic model on a set of documents
+processor.train_bertopic_model(
+	text_ids = [1,2,3], # which text ids to include in the model
+	model_name = "test_model", # will save the model under this directory in the data_path/bertopic_models/ path
+	notes = "notes", # notes on this model
+	split_by_n_words = None # leave None to split longer documents by page, or put an integer to split them by that number of words
+)
+
+# load a trained BERTopic model
+model = processor.load_bertopic_model(model_name)
+
+# save various visualizations from BERTopic models to data_path/bertopic_models/model_name/
+# any visualizations from: https://maartengr.github.io/BERTopic/getting_started/visualization/visualization.html, e.g.:
+processor.visualize_bertopic_model(
+	model_name = "test_model",
+	method_name = "visualize_topics", # method name from BERTopics various options
+	plot_name = "plot_name"
+)
+
+# other options for method_name:
+[
+	"visualize_topics",
+	"visualize_documents",
+	"visualize_hierarchy",
+	"visualize_barchart",
+	"visualize_heatmap",
+	"visualize_topics_over_time",
+	"visualize_topics_presence" # this is a unique function which shows a heat map of the relative presence of different topics in each document
+]
+
+# you can also pass arguments for these methods, e.g.:
+processor.visualize_bertopic_model(
+	model_name = "test_model",
+	method_name = "visualize_topics", # method name from BERTopics various options
+	plot_name = "plot_name",
+	top_n_topics = 10 # this is an argument for the visualize_topics function
+)
+
+# visualize_topics_over_time also requires you to pass a list of timestamps (datetime.datetime type) corresponding to the dates of the original documents the model was trained on
+processor.visualize_bertopic_model(
+	model_name = "test_model",
+	method_name = "visualize_topics_over_time", # method name from BERTopics various options
+	plot_name = "plot_name",
+	timestamps = timestamps # a list of timestamps
+)
 ```
