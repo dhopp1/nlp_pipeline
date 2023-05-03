@@ -214,3 +214,9 @@ def plot_cluster(plot_df, color_column):
     plt.xlabel("")
     
     return p
+
+def bertopic_visualize(processor, model, model_name, method_name, plot_name, *args, **kwargs):
+    "save visualizations from a bertopic model to html"
+    func = getattr(model, method_name)
+    fig = func(*args, **kwargs)
+    fig.write_html(f"{processor.data_path}bertopic_models/{model_name}/{plot_name}.html")

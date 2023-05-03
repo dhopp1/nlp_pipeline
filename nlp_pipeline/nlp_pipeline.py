@@ -560,3 +560,15 @@ class nlp_processor:
             :model_name: str: descriptive name of the model
         """
         return self.text_transformation.load_bertopic_model(self, model_name)
+    
+    def visualize_bertopic_model(self, model_name, method_name, plot_name, *args, **kwargs):
+        """"save a BERTopic plot to html in the model name directory
+        parameters:
+            :model_name: str: descriptive name of the model
+            :method_name: str: visualization function, list of options here: https://maartengr.github.io/BERTopic/getting_started/visualization/visualization.html
+            :plot_name: str: what to name the saved plot
+            :**kwargs: keyword arguments of the visualization function, e.g., top_n_topics = 10
+        """
+        model = self.load_bertopic_model(model_name)
+        self.visualizations.bertopic_visualize(self, model, model_name, method_name, plot_name, *args, **kwargs)
+        print(f"plot saved to {self.data_path}bertopic_models/{model_name}/{plot_name}.html")
