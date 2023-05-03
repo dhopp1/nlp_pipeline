@@ -545,7 +545,7 @@ class nlp_processor:
                 csv.to_csv(csv_path, index = False)
                 
     def train_bertopic_model(self, text_ids, model_name, notes = "", split_by_n_words = None):
-        """"train a BERTopic model from a set of text_ids and saves it to {data_path}/bertopic_models/{model_name}/model
+        """"train a BERTopic model from a set of text_ids and saves it to {data_path}/bertopic_models/{model_name}/model and updates a metadatda CSV with information on the model. The document_ids field of that CSV tells the number of smaller documents each larger document was split into, which is necessary for  topic modelling. 
         parameters:
             :text_ids: list[int]: single text_id or list of them to train the topic model
             :model_name: str: descriptive name of the model, will create a directory of this name

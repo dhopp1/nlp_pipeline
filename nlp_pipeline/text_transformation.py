@@ -266,6 +266,13 @@ def train_bertopic_model(processor, text_ids, model_name, notes="", split_by_n_w
         doc_list = doc_split(processor, text_ids)
     else:
         doc_list = doc_split(processor, text_ids, split_by_page = False, split_by_n_words = split_by_n_words)
+        
+    # dictionary of text_ids to new shorter documents
+    doc_count = {}
+    for i in doc_list.text_id:
+        doc_count[i] = doc_count.get(i, 0) + 1
+    # convert back into a list
+    #[item for sublist in [[key] * value for key, value in doc_count.items()] for item in sublist]
 
     # training the model
     print("training BERTopic model...")
@@ -280,13 +287,18 @@ def train_bertopic_model(processor, text_ids, model_name, notes="", split_by_n_w
         
     # model metadata file
     if not os.path.exists(f"{processor.data_path}bertopic_models/model_metadata.csv"):
-        metadata = pd.DataFrame(columns = ["model_name", "notes", "text_ids"])
+        metadata = pd.DataFrame(columns = ["model_name", "notes", "text_ids", "document_ids"])
     else:
         metadata = pd.read_csv(f"{processor.data_path}bertopic_models/model_metadata.csv")
+
+    # remove prior metadata if this model name already exists
+    metadata = metadata.loc[lambda x: x.model_name != model_name, :].reset_index(drop=True)
+    
     tmp_metadata = pd.DataFrame({
         "model_name": model_name,
         "notes": notes,
-        "text_ids": str(text_ids)
+        "text_ids": str(text_ids),
+        "document_ids": str(doc_count)
     }, index = [0])
     metadata = pd.concat([metadata, tmp_metadata], ignore_index = True)
     
