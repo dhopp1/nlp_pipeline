@@ -11,6 +11,8 @@ import os
 from bertopic import BERTopic
 from sentence_transformers import SentenceTransformer
 from sklearn.feature_extraction.text import CountVectorizer
+import seaborn as sns
+import matplotlib.pyplot as plt
 
 # key between langdetect language ISO code and NLTK's names for snowball, stopwords, and entity detection
 nltk_langdetect_dict = {
@@ -317,6 +319,7 @@ def load_bertopic_model(processor, model_name):
 def bertopic_visualize(processor, model, model_name, method_name, plot_name, timestamps = None, *args, **kwargs):
     "save visualizations from a bertopic model to html"
     
+    #document info of the model
     metadata = pd.read_csv(f"{processor.data_path}bertopic_models/model_metadata.csv")
     text_ids = eval(metadata.loc[lambda x: x.model_name == model_name, "text_ids"].values[0])
     split_by_n_words = eval(metadata.loc[lambda x: x.model_name == model_name, "split_by_n_words"].values[0])
@@ -325,6 +328,8 @@ def bertopic_visualize(processor, model, model_name, method_name, plot_name, tim
     else:
         split_by_page = False
     docs = doc_split(processor, text_ids, split_by_page, split_by_n_words).doc.values
+    doc_count = eval(metadata.loc[lambda x: x.model_name == model_name, "document_ids"].values[0])
+    doc_ids = [item for sublist in [[key] * value for key, value in doc_count.items()] for item in sublist]
     
     # cluster plot needs the list of documents
     if method_name == "visualize_documents":
@@ -335,16 +340,40 @@ def bertopic_visualize(processor, model, model_name, method_name, plot_name, tim
         
         fig = model.visualize_documents(docs, embeddings=embeddings)
     elif method_name == "visualize_topics_over_time":
-        doc_count = eval(metadata.loc[lambda x: x.model_name == model_name, "document_ids"].values[0])
-        doc_ids = [item for sublist in [[key] * value for key, value in doc_count.items()] for item in sublist]
         timestamp_dict = dict(zip(text_ids, timestamps))
         full_timestamps = [timestamp_dict[x] for x in doc_ids]
         topics_over_time = model.topics_over_time(docs, full_timestamps)
 
         func = getattr(model, method_name)
         fig = func(topics_over_time, **kwargs)
+    elif method_name == "visualize_topics_presence":
+        # getting relative attribution to each topic
+        doc_info = model.get_document_info(docs)
+        doc_info["text_id"] = [item for sublist in [[key] * value for key, value in doc_count.items()] for item in sublist]
+        df = doc_info.loc[:, ["Topic", "text_id", "Probability"]].groupby(by = ["Topic", "text_id"]).sum().reset_index()
+        df["n_docs"] = df.text_id
+        df = df.replace({"n_docs": doc_count})
+        df["topic_share"] = df.Probability / df.n_docs
+        df = df.loc[:, ["Topic", "text_id", "topic_share"]]
+        df = df.rename(columns={"Topic": "topic"})
+        df["topic_desc"] = df.topic
+        df = df.replace({"topic_desc": dict(zip(doc_info.Topic, doc_info.Name))})
+        
+        # plotting
+        plot_df = df.drop(["topic"], axis = 1).pivot("topic_desc", "text_id").transpose().reset_index()
+        plot_df = plot_df.fillna(0)
+        plot_df = plot_df.iloc[:, 1:].set_index("text_id").transpose()
+        plt.figure(figsize = (plot_df.shape[1] * 2, plot_df.shape[0] * 2))
+        sns.heatmap(plot_df, annot = True, linewidth = 0.5, cmap = sns.color_palette("Blues", as_cmap=True))
+        plt.ylabel("Topic")
+        plt.xlabel("Text ID")
+        plt.tight_layout()
+        plt.savefig(f"{processor.data_path}bertopic_models/{model_name}/{plot_name}.png", dpi = 99)
     else:
         func = getattr(model, method_name)
         fig = func(*args, **kwargs)
     
-    fig.write_html(f"{processor.data_path}bertopic_models/{model_name}/{plot_name}.html")
+    try:
+        fig.write_html(f"{processor.data_path}bertopic_models/{model_name}/{plot_name}.html")
+    except:
+        pass
