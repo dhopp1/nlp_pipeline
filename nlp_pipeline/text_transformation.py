@@ -314,24 +314,35 @@ def load_bertopic_model(processor, model_name):
     model = BERTopic.load(f"{processor.data_path}bertopic_models/{model_name}/model")
     return model
 
-def bertopic_visualize(processor, model, model_name, method_name, plot_name, *args, **kwargs):
+def bertopic_visualize(processor, model, model_name, method_name, plot_name, timestamps = None, *args, **kwargs):
     "save visualizations from a bertopic model to html"
+    
+    metadata = pd.read_csv(f"{processor.data_path}bertopic_models/model_metadata.csv")
+    text_ids = eval(metadata.loc[lambda x: x.model_name == model_name, "text_ids"].values[0])
+    split_by_n_words = eval(metadata.loc[lambda x: x.model_name == model_name, "split_by_n_words"].values[0])
+    if split_by_n_words == None:
+        split_by_page = True
+    else:
+        split_by_page = False
+    docs = doc_split(processor, text_ids, split_by_page, split_by_n_words).doc.values
+    
     # cluster plot needs the list of documents
     if method_name == "visualize_documents":
-        metadata = pd.read_csv(f"{processor.data_path}bertopic_models/model_metadata.csv")
-        text_ids = eval(metadata.loc[lambda x: x.model_name == model_name, "text_ids"].values[0])
-        split_by_n_words = eval(metadata.loc[lambda x: x.model_name == model_name, "split_by_n_words"].values[0])
-        if split_by_n_words == None:
-            split_by_page = True
-        else:
-            split_by_page = False
-        docs = (doc_split(processor, text_ids, split_by_page, split_by_n_words).doc.values)
         sentence_model = SentenceTransformer("all-MiniLM-L6-v2")
         
         print("getting embeddings...")
         embeddings = sentence_model.encode(docs, show_progress_bar=False)
         
         fig = model.visualize_documents(docs, embeddings=embeddings)
+    elif method_name == "visualize_topics_over_time":
+        doc_count = eval(metadata.loc[lambda x: x.model_name == model_name, "document_ids"].values[0])
+        doc_ids = [item for sublist in [[key] * value for key, value in doc_count.items()] for item in sublist]
+        timestamp_dict = dict(zip(text_ids, timestamps))
+        full_timestamps = [timestamp_dict[x] for x in doc_ids]
+        topics_over_time = model.topics_over_time(docs, full_timestamps)
+
+        func = getattr(model, method_name)
+        fig = func(topics_over_time, **kwargs)
     else:
         func = getattr(model, method_name)
         fig = func(*args, **kwargs)

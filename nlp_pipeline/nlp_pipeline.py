@@ -561,14 +561,15 @@ class nlp_processor:
         """
         return self.text_transformation.load_bertopic_model(self, model_name)
     
-    def visualize_bertopic_model(self, model_name, method_name, plot_name, *args, **kwargs):
+    def visualize_bertopic_model(self, model_name, method_name, plot_name, timestamps = None, *args, **kwargs):
         """"save a BERTopic plot to html in the model name directory
         parameters:
             :model_name: str: descriptive name of the model
             :method_name: str: visualization function, list of options here: https://maartengr.github.io/BERTopic/getting_started/visualization/visualization.html
             :plot_name: str: what to name the saved plot
+            :timestamps: list[datetime.datetime]: for the visualize_topics_over_time() function, have to also pass a list of timestamps corresponding to the timestamps for each text_id used to train the original model_name model
             :**kwargs: keyword arguments of the visualization function, e.g., top_n_topics = 10
         """
         model = self.load_bertopic_model(model_name)
-        self.text_transformation.bertopic_visualize(self, model, model_name, method_name, plot_name, *args, **kwargs)
+        self.text_transformation.bertopic_visualize(self, model, model_name, method_name, plot_name, timestamps, *args, **kwargs)
         print(f"plot saved to {self.data_path}bertopic_models/{model_name}/{plot_name}.html")
