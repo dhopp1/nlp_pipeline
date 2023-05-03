@@ -1,6 +1,10 @@
 
 # Change Log
 
+## 0.0.19
+### Added
+* added BERTopic functionality
+
 ## 0.0.18
 ### Fixed
 * NER for longer texts
