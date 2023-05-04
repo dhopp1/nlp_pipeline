@@ -213,6 +213,8 @@ class nlp_processor:
             :path_prefix: str: what the prefix of the files in the transformed_txt_files/ path is
             :n_words: int: top n words to show in the plot
         """
+        path_prefix += "_"
+        
         if type(text_ids) != list:
             text_ids = [text_ids]
         
