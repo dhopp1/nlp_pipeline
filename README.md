@@ -70,7 +70,7 @@ processor.gen_summary_stats_csv(text_ids, "all_transformed")
 # bar plot of most common words in a document or group of documents
 p, plot_df = processor.bar_plot_word_count(
 	text_ids = text_ids, 
-	path_prefix = "all_transformed", # prefix used previously for the transformation
+	path_prefix = "all_transformed", # prefix used previously for the transformation. Pass "entity" to show top entities instead of words
 	n_words = 10, # top n words to show
 	title = "Plot Title"
 )
@@ -78,7 +78,7 @@ p, plot_df = processor.bar_plot_word_count(
 # word cloud of most common words in a document or group of documents
 p, plot_df = processor.word_cloud(
 	text_ids = text_ids, 
-	path_prefix = "all_transformed", # prefix used previously for the transformation
+	path_prefix = "all_transformed", # prefix used previously for the transformation. Pass "entity" to show top entities instead of words
 	n_words = 10 # top n words to show
 )
 
@@ -86,7 +86,7 @@ p, plot_df = processor.word_cloud(
 p, plot_df = processor.plot_word_occurrences(
     text_ids_list = text_ids, # can be a list of lists, [[1,2,3], [4,5,6]], for counts by decade e.g.
     word = "green", 
-    path_prefix = "all_transformed", 
+    path_prefix = "all_transformed", # pass "entity" plot entity instead of word over time
     x_labels = [1,2,3],
     title = "Plot Title"
 )
