@@ -221,7 +221,7 @@ class nlp_processor:
         """word cloud of top words occurring in text(s)
         parameters:
             :text_ids: list[float]: single text_id or list of them to perform the transformation(s) on
-            :path_prefix: str: what the prefix of the files in the transformed_txt_files/ path is
+            :path_prefix: str: what the prefix of the files in the transformed_txt_files/ path is.  Pass "entity" to do a chart based on entity counts instead of word counts.
             :n_words: int: top n words to show in the plot
         """
         path_prefix += "_"
@@ -230,10 +230,22 @@ class nlp_processor:
             text_ids = [text_ids]
         
         # only do if dataframe exists
-        csv_path = f"{self.data_path}csv_outputs/{path_prefix}word_counts.csv"
+        if path_prefix != "entity_":
+            csv_path = f"{self.data_path}csv_outputs/{path_prefix}word_counts.csv"
+        else:
+            csv_path = f"{self.data_path}csv_outputs/entity_counts.csv"
+            
         if os.path.exists(csv_path):
             csv = pd.read_csv(csv_path).loc[lambda x: x.text_id.isin(text_ids), :].reset_index(drop=True)
+            
+            if path_prefix == "entity_":
+                csv = csv.rename(columns={"entity_count_dict": "word_count_dict"})
+            
             df = self.visualizations.convert_word_count_dict_to_df(csv)
+            
+            if path_prefix == "entity_":
+                df["word"] = [x[0] for x in df.word.str.split("|")]
+                
             p, plot_data = self.visualizations.word_cloud(df, n_words)
             
             return (p, plot_data)
