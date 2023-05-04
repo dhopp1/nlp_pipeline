@@ -1,6 +1,10 @@
 
 # Change Log
 
+## 0.0.20
+### Added
+* added ability to plot entities with the bar plot, word cloud plot, and occurrences over time plot
+
 ## 0.0.19
 ### Added
 * added BERTopic functionality
