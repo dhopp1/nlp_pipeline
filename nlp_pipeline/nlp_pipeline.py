@@ -221,7 +221,7 @@ class nlp_processor:
         """word cloud of top words occurring in text(s)
         parameters:
             :text_ids: list[float]: single text_id or list of them to perform the transformation(s) on
-            :path_prefix: str: what the prefix of the files in the transformed_txt_files/ path is.  Pass "entity" to do a chart based on entity counts instead of word counts.
+            :path_prefix: str: what the prefix of the files in the transformed_txt_files/ path is. Pass "entity" to do a chart based on entity counts instead of word counts.
             :n_words: int: top n words to show in the plot
         """
         path_prefix += "_"
@@ -336,17 +336,24 @@ class nlp_processor:
         parameters:
             :text_ids_list: list[int]: either list of list of text_ids, e.g., [[1,2], [3,4]], or if individual documents rather than groups, [1,2,3,4]
             :word: str: which word to look for
-            :path_prefix: str: what the prefix of the files in the csv_outputs/ path is. Need to have run the gen_word_count_csv() function.
+            :path_prefix: str: what the prefix of the files in the csv_outputs/ path is. Need to have run the gen_word_count_csv() function. Pass "entity" to do a chart based on entity counts instead of word counts.
             :x_labels: list: what to label the x-axis in the plot, what are the different documents or groups of documents. E.g., decades or years.
             :title: str: additional title to the plot
         """
         path_prefix += "_"
         
-        csv_path = f"{self.data_path}csv_outputs/{path_prefix}word_counts.csv"
+        if path_prefix != "entity_":
+            csv_path = f"{self.data_path}csv_outputs/{path_prefix}word_counts.csv"
+        else:
+            csv_path = f"{self.data_path}csv_outputs/entity_counts.csv"
         
         # only run if file exists
         if os.path.exists(csv_path):
             csv = pd.read_csv(csv_path)
+            
+            if path_prefix == "entity_":
+                csv = csv.rename(columns={"entity_count_dict": "word_count_dict"})
+
             p, plot_df = self.visualizations.plot_word_occurrences(csv, text_ids_list, word, x_labels, title)
             
             return (p, plot_df)
