@@ -212,6 +212,7 @@ def convert_to_text(metadata, data_path, text_id, windows_tesseract_path = None,
                         (return_text.lower().count("_") / len(return_text) > 0.05) | 
                         (return_text.lower().count("sqj") > 10) | # if poorly digitized and a lot of 'sqj's
                         (return_text.lower().count("\x03") / len(return_text) > 0.01) | # if poorly digitized and a lot of '\x03's
+                        (return_text.lower().count("\x01") / len(return_text) > 0.01) | # if poorly digitized and a lot of '\x01's
                         (return_text.lower().count("^") / len(return_text) > 0.0001) | 
                         (sum([1 if return_text[i] == return_text[i-1] == return_text[i-2] and return_text[i].isalpha() else 0 for i in range(2, len(return_text))]) / len(return_text) > 0.0009) # many repeated letters is an error
                     ): # force OCR

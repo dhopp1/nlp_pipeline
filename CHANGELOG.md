@@ -1,6 +1,10 @@
 
 # Change Log
 
+## 0.0.23
+### Fixed
+* better detect more OCR PDFs
+
 ## 0.0.22
 ### Added
 * ability to only show certain topics and text IDs in visualize\_topics\_presence plot, as well as save the dataframe
