@@ -105,7 +105,7 @@ p, plot_df = processor.plot_summary_stats(
     text_ids_list = text_ids, 
     path_prefix = "all_transformed", 
     x_labels = [1,2,3],
-    summary_stat_col = "n_words", # one of: n_words, n_unique_words, n_sentences, n_pages, avg_word_length, avg_word_incidence
+    summary_stats_col = "n_words", # one of: n_words, n_unique_words, n_sentences, n_pages, avg_word_length, avg_word_incidence
     title = "Plot Title"
 )
 
@@ -118,7 +118,7 @@ p, plot_df, xaxis_labels = processor.plot_text_similarity(text_ids, label_column
 
 # similarity of documents cluster plot
 plot_df = processor.gen_cluster_df(text_id_dict) # dictionary of groups and text_ids within the group
-p = processor.plot_cluster(plot_df, group_column = "group")
+p = processor.plot_cluster(plot_df, color_column = "group")
 
 # train a BERTopic model on a set of documents
 processor.train_bertopic_model(

@@ -190,6 +190,7 @@ def detect_language(stringx):
 def convert_to_text(metadata, data_path, text_id, windows_tesseract_path = None, windows_poppler_path = None):
     "convert a PDF or HTML file into raw text. In PDFs, new pages encoded with '[newpage]'"
     raw_path = metadata.loc[lambda x: x.text_id == text_id, "local_raw_filepath"].values[0]
+    
     # path exists (not nan) and is longer than 0
     raw_exists = type(raw_path) == str
     if raw_exists:
@@ -206,12 +207,14 @@ def convert_to_text(metadata, data_path, text_id, windows_tesseract_path = None,
                     return_text = ""
                 try:
                     if (
-                            (len(set(return_text.split("[newpage] "))) == 1) | # if only empties, scan, needs to be OCR converted.
-                            ((return_text.lower().count("/g") / len(return_text)) > 0.01) | # If bunch of "/G"s, greater than 1% of all the characters, encoding error, like review of maritime transport 2006
-                            (return_text.lower().count("_") / len(return_text) > 0.05) | 
-                            (return_text.lower().count("sqj") > 10) | # if poorly digitized and a lot of 'sqj's
-                            (return_text.lower().count("\x03") / len(return_text) > 0.01) # if poorly digitized and a lot of '\x03's
-                        ): # force OCR
+                        (len(set(return_text.split("[newpage] "))) == 1) | # if only empties, scan, needs to be OCR converted.
+                        ((return_text.lower().count("/g") / len(return_text)) > 0.01) | # If bunch of "/G"s, greater than 1% of all the characters, encoding error, like review of maritime transport 2006
+                        (return_text.lower().count("_") / len(return_text) > 0.05) | 
+                        (return_text.lower().count("sqj") > 10) | # if poorly digitized and a lot of 'sqj's
+                        (return_text.lower().count("\x03") / len(return_text) > 0.01) | # if poorly digitized and a lot of '\x03's
+                        (return_text.lower().count("^") / len(return_text) > 0.0001) | 
+                        (sum([1 if return_text[i] == return_text[i-1] == return_text[i-2] and return_text[i].isalpha() else 0 for i in range(2, len(return_text))]) / len(return_text) > 0.0009) # many repeated letters is an error
+                    ): # force OCR
                         return_text = parse_ocr_pdf(data_path, raw_path, windows_tesseract_path, windows_poppler_path)
                         # remove temporary image files from OCR
                         for f in glob.glob(f"{data_path}*.jpg"):

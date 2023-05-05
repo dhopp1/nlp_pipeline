@@ -1,6 +1,10 @@
 
 # Change Log
 
+## 0.0.21
+### Fixed
+* better detect more OCR PDFs
+
 ## 0.0.20
 ### Added
 * added ability to plot entities with the bar plot, word cloud plot, and occurrences over time plot
