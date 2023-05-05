@@ -165,4 +165,13 @@ processor.visualize_bertopic_model(
 	plot_name = "plot_name",
 	timestamps = timestamps # a list of timestamps
 )
+
+# visualize presence of topics in documents
+processor.visualize_bertopic_model(
+	model_name = "test_model",
+	method_name = "visualize_topics_presence",
+	plot_name = "plot_name",
+	presence_text_ids = [0, 1, 2], # only produce the plot for these text ids
+	presence_topic_ids = [5, 6, 7] # only produce the plot for these topic ids
+)
 ```

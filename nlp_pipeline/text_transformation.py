@@ -316,8 +316,10 @@ def load_bertopic_model(processor, model_name):
     model = BERTopic.load(f"{processor.data_path}bertopic_models/{model_name}/model")
     return model
 
-def bertopic_visualize(processor, model, model_name, method_name, plot_name, timestamps = None, *args, **kwargs):
+def bertopic_visualize(processor, model, model_name, method_name, plot_name, timestamps = None, presence_text_ids = None, presence_topic_ids = None, *args, **kwargs):
     "save visualizations from a bertopic model to html"
+    
+    plot_df = None
     
     #document info of the model
     metadata = pd.read_csv(f"{processor.data_path}bertopic_models/model_metadata.csv")
@@ -363,6 +365,12 @@ def bertopic_visualize(processor, model, model_name, method_name, plot_name, tim
         plot_df = df.drop(["topic"], axis = 1).pivot("topic_desc", "text_id").transpose().reset_index()
         plot_df = plot_df.fillna(0)
         plot_df = plot_df.iloc[:, 1:].set_index("text_id").transpose()
+        
+        if presence_text_ids != None:
+            plot_df = plot_df.loc[:, presence_text_ids]
+        if presence_topic_ids != None:
+            plot_df = plot_df.loc[[True if int(x.split("_")[0]) in presence_topic_ids else False for x in list(plot_df.index)], :]
+        
         plt.figure(figsize = (plot_df.shape[1] * 2, plot_df.shape[0] * 2))
         sns.heatmap(plot_df, annot = True, linewidth = 0.5, cmap = sns.color_palette("Blues", as_cmap=True))
         plt.ylabel("Topic")
@@ -377,3 +385,5 @@ def bertopic_visualize(processor, model, model_name, method_name, plot_name, tim
         fig.write_html(f"{processor.data_path}bertopic_models/{model_name}/{plot_name}.html")
     except:
         pass
+    
+    return plot_df

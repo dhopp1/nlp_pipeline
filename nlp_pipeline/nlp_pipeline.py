@@ -593,15 +593,18 @@ class nlp_processor:
         """
         return self.text_transformation.load_bertopic_model(self, model_name)
     
-    def visualize_bertopic_model(self, model_name, method_name, plot_name, timestamps = None, *args, **kwargs):
-        """"save a BERTopic plot to html in the model name directory
+    def visualize_bertopic_model(self, model_name, method_name, plot_name, timestamps = None, presence_text_ids = None, presence_topic_ids = None, *args, **kwargs):
+        """"save a BERTopic plot to html or png in the model name directory
         parameters:
             :model_name: str: descriptive name of the model
             :method_name: str: visualization function, list of options here: https://maartengr.github.io/BERTopic/getting_started/visualization/visualization.html, or the custom one 'visualize_topics_presence'
             :plot_name: str: what to name the saved plot
             :timestamps: list[datetime.datetime]: for the visualize_topics_over_time() function, have to also pass a list of timestamps corresponding to the timestamps for each text_id used to train the original model_name model
+            :presence_text_ids: list[int]: which text_ids to include in the plot (only for visualize_topics_presence)
+            :presence_topic_ids: list[int]: which topic ids to include in the plot (only for visualize_topics_presence)
             :**kwargs: keyword arguments of the visualization function, e.g., top_n_topics = 10
         """
         model = self.load_bertopic_model(model_name)
-        self.text_transformation.bertopic_visualize(self, model, model_name, method_name, plot_name, timestamps, *args, **kwargs)
+        plot_df = self.text_transformation.bertopic_visualize(self, model, model_name, method_name, plot_name, timestamps, presence_text_ids, presence_topic_ids, *args, **kwargs)
         print(f"plot saved to {self.data_path}bertopic_models/{model_name}/{plot_name}.*")
+        return plot_df
