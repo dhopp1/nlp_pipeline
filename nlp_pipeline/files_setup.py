@@ -8,7 +8,7 @@ from pdf2image import convert_from_path, pdfinfo_from_path
 from pathlib import Path
 from PIL import Image
 from langdetect import detect
-import os, glob
+import os, glob, shutil
 
 def setup_directories(data_path):
     "setup requied and standardized directory structure"
@@ -62,26 +62,36 @@ def download_document(metadata, data_path, text_id, web_filepath):
         web_filepath = web_filepath.split(",")[0] # may have multiple URLs stored in field, take only first (english)
         
         # first check if this file already downloaded
-        if not(os.path.isfile(f"{data_path}raw_files/{text_id}.html")) and not(os.path.isfile(f"{data_path}raw_files/{text_id}.pdf")):
-            response = requests.get(web_filepath)
-            content_type = response.headers.get('content-type')
-            
-            if "application/pdf" in content_type:
-                ext = ".pdf"
-            elif "text/html" in content_type:
-                ext = ".html"
-            else:
-                ext = ""
-            
-            if ext != "":
-                file = open(f"{data_path}raw_files/{text_id}{ext}", "wb+")
-                file.write(response.content)
-                file.close()
+        if not(os.path.isfile(f"{data_path}raw_files/{text_id}.html")) and not(os.path.isfile(f"{data_path}raw_files/{text_id}.pdf")) and not(os.path.isfile(f"{data_path}raw_files/{text_id}.txt")):
+            try: # try downloading the file first
+                response = requests.get(web_filepath)
+                content_type = response.headers.get('content-type')
                 
-                metadata.loc[metadata.text_id == text_id, "local_raw_filepath"] = f"{data_path}raw_files/{text_id}{ext}"
-                return metadata
-            else:
-                return None
+                if "application/pdf" in content_type:
+                    ext = ".pdf"
+                elif "text/html" in content_type:
+                    ext = ".html"
+                else:
+                    ext = ""
+                
+                if ext != "":
+                    file = open(f"{data_path}raw_files/{text_id}{ext}", "wb+")
+                    file.write(response.content)
+                    file.close()
+                    
+                    metadata.loc[metadata.text_id == text_id, "local_raw_filepath"] = f"{data_path}raw_files/{text_id}{ext}"
+                    return metadata
+                else:
+                    return None
+            except: 
+                try: # try just copying the local txt file if not a URL
+                    if ".txt" in web_filepath:
+                        shutil.copyfile(web_filepath, f"{data_path}raw_files/{text_id}.txt")
+                        metadata.loc[metadata.text_id == text_id, "local_raw_filepath"] = f"{data_path}raw_files/{text_id}.txt"
+                    else:
+                        return None
+                except:
+                    return None
             
         
 def parse_pdf(pdf_path):
@@ -189,7 +199,7 @@ def detect_language(stringx):
         
 def convert_to_text(metadata, data_path, text_id, windows_tesseract_path = None, windows_poppler_path = None):
     "convert a PDF or HTML file into raw text. In PDFs, new pages encoded with '[newpage]'"
-    raw_path = metadata.loc[lambda x: x.text_id == text_id, "local_raw_filepath"].values[0]
+    raw_path = metadata.loc[lambda x: x.text_id == text_id, "local_raw_filepath"].values[0]    
     
     # path exists (not nan) and is longer than 0
     raw_exists = type(raw_path) == str
@@ -224,6 +234,10 @@ def convert_to_text(metadata, data_path, text_id, windows_tesseract_path = None,
                     return_text = ""
             elif ".html" in raw_path:
                 return_text = parse_html(raw_path)
+            elif ".txt" in raw_path:
+                file = open(f"{raw_path}", "r", encoding = "UTF-8") 
+                return_text = file.read()
+                file.close()
             
             # write text file
             file = open(f"{data_path}txt_files/{text_id}.txt", "wb+")

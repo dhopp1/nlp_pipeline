@@ -15,11 +15,13 @@ class nlp_processor:
     def __init__(
         self,
         data_path,
-        metadata_addt_column_names,
+        metadata_addt_column_names = [],
         windows_tesseract_path = None, 
         windows_poppler_path = None
     ):
         # initializing parameters
+        if data_path[-1:] != "/":
+            data_path += "/"
         self.data_path = data_path
         self.metadata_addt_column_names = metadata_addt_column_names
         self.windows_tesseract_path = windows_tesseract_path
@@ -42,7 +44,7 @@ class nlp_processor:
     def refresh_object_metadata(self):
         "update the metadata of the processor in case changes are made to the file outside of the object"
         self.metadata = pd.read_csv(f"{self.data_path}metadata.csv")
-        self.files_setup.generate_metadata_file(self.data_path, self.metadata_addt_column_names) # make sure text_id added
+        self.metadata = self.files_setup.generate_metadata_file(self.data_path, self.metadata_addt_column_names) # make sure text_id added
     
     def sync_local_metadata(self):
         "update the metadata local file to reflect actual state of files in the data directory"
@@ -50,7 +52,7 @@ class nlp_processor:
         self.metadata.to_csv(f"{self.data_path}metadata.csv", index = False)
         
     def download_text_id(self, text_ids):
-        "download a file from a URL and update the metadata file. Pass either single text id or list of them"
+        "download a file from a URL and update the metadata file. Pass either single text id or list of them. Can also point to a local .txt file"
         if type(text_ids) != list:
             text_ids = [text_ids]
         counter = 1
