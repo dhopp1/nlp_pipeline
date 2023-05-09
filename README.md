@@ -1,4 +1,3 @@
-
 # nlp_pipeline
 Collection of NLP tools for processing and analyzing text data.
 
@@ -24,12 +23,13 @@ processor = nlp_processor(
 
 # this will generate a metadata file and create the directory structure
 # you can now add additional data to the metadata file, (titles, etc.). When finished, run the following so the metadata in the processor object will reflect the local file
+# in the web_filepath metadata column you can also put paths to local .txt files
 processor.refresh_object_metadata()
 
 # if you ever make changes to the local files, e.g., delete a PDF, run the following to make sure the metadata file reflects that
 processor.sync_local_metadata()
 
-# download some documents with metadat IDs 1, 2, and 3
+# download some documents with metadata IDs 1, 2, and 3
 text_ids = [1,2,3]
 processor.download_text_id(text_ids)
 
@@ -105,7 +105,7 @@ p, plot_df = processor.plot_summary_stats(
     text_ids_list = text_ids, 
     path_prefix = "all_transformed", 
     x_labels = [1,2,3],
-    summary_stats_col = "n_words", # one of: n_words, n_unique_words, n_sentences, n_pages, avg_word_length, avg_word_incidence
+    summary_stats_col = "n_words", # one of: n_words, n_unique_words, n_sentences, n_pages, avg_word_length, avg_word_incidence, num_chars_numeric, num_chars_alpha, numeric_proportion
     title = "Plot Title"
 )
 
@@ -175,3 +175,22 @@ processor.visualize_bertopic_model(
 	presence_topic_ids = [5, 6, 7] # only produce the plot for these topic ids
 )
 ```
+
+## Different language support
+
+- removing of stopwords
+	-  	most big languages, full list with `from nltk.corpus import stopwords; print(stopwords.fileids())`
+-  stemming
+	-  for Snowball stemmer, many big languages, but less than stopwords support. Full list [here](https://www.nltk.org/api/nltk.stem.SnowballStemmer.html?highlight=stopwords#:~:text=The%20following%20languages%20are%20supported,%2C%20Russian%2C%20Spanish%20and%20Swedish.). Only English for Lancaster stemmer.
+-  word counts
+	- all languages
+- entity counts
+	-  most big languages, full list [here](https://spacy.io/models)
+-  sentiment analysis
+	- only English
+-  summary statistics (number of words, pages, numeric proportion, etc.)
+	- all languages
+-  	text similarity/clustering
+	- all languages  
+- topic modelling
+	- most big languages, full list [here](https://github.com/google-research/bert/blob/master/multilingual.md)

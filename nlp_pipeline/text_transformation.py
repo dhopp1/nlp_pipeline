@@ -278,7 +278,10 @@ def train_bertopic_model(processor, text_ids, model_name, notes="", split_by_n_w
 
     # training the model
     print("training BERTopic model...")
-    model = BERTopic(vectorizer_model=vectorizer_model)
+    if majority_language == "en":
+        model = BERTopic(vectorizer_model=vectorizer_model)
+    else:
+        model = BERTopic(language="multilingual", vectorizer_model=vectorizer_model)
     topics, probs = model.fit_transform(doc_list.doc.values)
     
     # create BERTopic directory if it doesn't exist

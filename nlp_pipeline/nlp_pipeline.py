@@ -394,6 +394,9 @@ class nlp_processor:
                 :n_pages: number of pages in the original document
                 :avg_word_length: average word length (number of letters) in the original document
                 :avg_word_incidence: average incidence of words in the language of the document (higher is more frequent/common words, a word with Zipf value 6 appears once per thousand words and a word with Zipf value 3 appears once per million words)
+                :num_chars_numeric: number of numeric characters in the document
+                :num_chars_alpha: number of alpha characters in the document
+                :numeric_proportion: numeric characters / (numeric + alpha characters)
         """
         path_prefix += "_"
         
@@ -401,7 +404,7 @@ class nlp_processor:
             text_ids = [text_ids]
     
         # check if CSV already exists
-        csv_path = f"{self.data_path}csv_outputs/{path_prefix}summary_stats_csv.csv"
+        csv_path = f"{self.data_path}csv_outputs/{path_prefix}summary_stats.csv"
         
         if os.path.exists(csv_path):
             csv = pd.read_csv(csv_path)
@@ -413,7 +416,10 @@ class nlp_processor:
                 "n_sentences": "",
                 "n_pages": "",
                 "avg_word_length": "",
-                "avg_word_incidence": ""
+                "avg_word_incidence": "",
+                "num_chars_numeric": "",
+                "num_chars_alpha": "",
+                "numeric_proportion": ""
             })
         
         counter = 1
@@ -457,13 +463,18 @@ class nlp_processor:
                 except:
                     avg_word_length = 0
                 
-                # calculating 
+                # calculating avg incidence
                 word_list = [x for x in orig_stringx.split(" ") if len(x) > 1]
                 avg_word_incidence = [self.text_transformation.get_word_frequency(x, language) for x in word_list]
                 try:
                     avg_word_incidence = sum(avg_word_incidence) / len(avg_word_incidence)
                 except:
                     avg_word_incidence = 0
+                    
+                # calculating numeric proportion
+                num_chars_numeric = sum(c.isdigit() for c in stringx)
+                num_chars_alpha = max(sum(c.isalpha() for c in stringx), 1)
+                numeric_proportion = num_chars_numeric / (num_chars_numeric + num_chars_alpha)
                 
                 # adding and writing to CSV
                 csv.loc[csv.text_id == text_id, "n_words"] = n_words
@@ -472,6 +483,9 @@ class nlp_processor:
                 csv.loc[csv.text_id == text_id, "n_pages"] = n_pages
                 csv.loc[csv.text_id == text_id, "avg_word_length"] = avg_word_length
                 csv.loc[csv.text_id == text_id, "avg_word_incidence"] = avg_word_incidence
+                csv.loc[csv.text_id == text_id, "num_chars_numeric"] = num_chars_numeric
+                csv.loc[csv.text_id == text_id, "num_chars_alpha"] = num_chars_alpha
+                csv.loc[csv.text_id == text_id, "numeric_proportion"] = numeric_proportion
                 csv.to_csv(csv_path, index = False)
                              
     def plot_summary_stats(self, text_ids_list, path_prefix, x_labels = None, title = "", summary_stats_col = "n_words"):
@@ -481,11 +495,11 @@ class nlp_processor:
             :path_prefix: str: what the prefix of the files in the csv_outputs/ path is. Need to have run the get_sentiment_csv() function.
             :x_labels: list: what to label the x-axis in the plot, what are the different documents or groups of documents. E.g., decades or years.
             :title: str: additional title to the plot
-            :summary_stats_col: str: which column in the summary_stats_col df to plot, one of ["n_words","n_unique_words","n_sentences","n_pages","avg_word_length","avg_word_incidence"]
+            :summary_stats_col: str: which column in the summary_stats_col df to plot, one of ["n_words","n_unique_words","n_sentences","n_pages","avg_word_length","avg_word_incidence","num_chars_numeric","num_chars_alpha","numeric_proportion"]
         """
         path_prefix += "_"
         
-        csv_path = f"{self.data_path}csv_outputs/{path_prefix}summary_stats_csv.csv"
+        csv_path = f"{self.data_path}csv_outputs/{path_prefix}summary_stats.csv"
         
         # only run if file exists
         print(os.path.exists(csv_path))

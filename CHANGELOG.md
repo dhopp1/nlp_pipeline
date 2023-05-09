@@ -1,6 +1,11 @@
 
 # Change Log
 
+## 0.0.24
+### Added
+* calculation of number of numeric and alpha characters in text
+* enable initial input of local text files instead of web URLs
+
 ## 0.0.23
 ### Fixed
 * better detect more OCR PDFs

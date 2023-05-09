@@ -97,6 +97,10 @@ def plot_summary_stats(df, text_ids_list, x_labels = None, title = "", summary_s
         subtitle = "average word length"
     elif summary_stats_col == "avg_word_incidence":
         subtitle = "average word incidence"
+    elif summary_stats_col == "numeric_proportion":
+        subtitle = "numeric proportion"
+    else:
+        subtitle = ""
         
     df_list = []
     for id_group in text_ids_list:
