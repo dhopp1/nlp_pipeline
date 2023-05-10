@@ -6,6 +6,8 @@ The fundamental input of the library is a metadata file. By default this will co
 
 Fundamentally the library takes the list of documents and downloads, transforms, and organizes them according to a specific filestructure. These files can then be used to generate insights, such as word counts, etc.
 
+For more detailed examples, see the `nlp_pipeline_example.zip` file. Note the trained BERTopic model is not stored there due to space constraints and needs to be retrained.
+
 ## Example code
 ```py
 from nlp_pipeline.nlp_pipeline import nlp_processor
