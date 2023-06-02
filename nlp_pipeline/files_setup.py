@@ -10,6 +10,10 @@ from PIL import Image
 from langdetect import detect
 import os, glob, shutil
 
+# English vocabulary for detecting poorly encoded PDFs
+english_dict = pd.read_csv("https://github.com/dwyl/english-words/raw/master/words_alpha.txt", header = None)
+english_dict = list(english_dict.iloc[:,0].values)
+
 def setup_directories(data_path):
     "setup requied and standardized directory structure"
     
@@ -215,6 +219,24 @@ def convert_to_text(metadata, data_path, text_id, windows_tesseract_path = None,
                     return_text = parse_pdf(raw_path)
                 except:
                     return_text = ""
+               
+                # high proportion of non-english words could indicate poor encoding
+                try:
+                    detected_lang = detect(return_text)
+                except:
+                    detected_lang = "en"
+                
+                if detected_lang == "en":
+                    alphas = set([x for x in return_text.lower().split(" ") if x.isalpha()])
+                    eng_words = [x for x in alphas if x in english_dict]
+                    
+                    try:
+                        eng_dict = len(eng_words) / len(alphas)
+                    except:
+                        eng_dict = 1.0
+                else:
+                    eng_dict = 1.0
+                
                 try:
                     if (
                         (len(set(return_text.split("[newpage] "))) == 1) | # if only empties, scan, needs to be OCR converted.
@@ -224,7 +246,8 @@ def convert_to_text(metadata, data_path, text_id, windows_tesseract_path = None,
                         (return_text.lower().count("\x03") / len(return_text) > 0.01) | # if poorly digitized and a lot of '\x03's
                         (return_text.lower().count("\x01") / len(return_text) > 0.01) | # if poorly digitized and a lot of '\x01's
                         (return_text.lower().count("^") / len(return_text) > 0.0001) | 
-                        (sum([1 if return_text[i] == return_text[i-1] == return_text[i-2] and return_text[i].isalpha() else 0 for i in range(2, len(return_text))]) / len(return_text) > 0.0009) # many repeated letters is an error
+                        (sum([1 if return_text[i] == return_text[i-1] == return_text[i-2] and return_text[i].isalpha() else 0 for i in range(2, len(return_text))]) / len(return_text) > 0.0009) | # many repeated letters is an error
+                        (eng_dict < 0.8) # high proportion of out of vocabulary words
                     ): # force OCR
                         return_text = parse_ocr_pdf(data_path, raw_path, windows_tesseract_path, windows_poppler_path)
                         # remove temporary image files from OCR

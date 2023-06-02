@@ -1,6 +1,10 @@
 
 # Change Log
 
+## 0.0.25
+### Fixed
+* better detect more OCR PDFs
+
 ## 0.0.24
 ### Added
 * calculation of number of numeric and alpha characters in text
