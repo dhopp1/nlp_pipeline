@@ -68,8 +68,8 @@ class nlp_processor:
                 self.metadata = tmp_metadata
                 self.metadata.to_csv(f"{self.data_path}metadata.csv", index = False)
 
-    def convert_to_text(self, text_ids):
-        "convert a pdf or html file to text. Pass either single text id or list of them"
+    def convert_to_text(self, text_ids, force_ocr = False):
+        "convert a pdf or html file to text. Pass either single text id or list of them. 'force_ocr' is whether or not to force ocr conversion of a pdf"
         if type(text_ids) != list:
             text_ids = [text_ids]
         counter = 1
@@ -77,7 +77,7 @@ class nlp_processor:
             print(f"converting to text: file {counter}/{len(text_ids)}")
             counter += 1
             
-            tmp_metadata = self.files_setup.convert_to_text(self.metadata, self.data_path, text_id, self.windows_tesseract_path, self.windows_poppler_path)
+            tmp_metadata = self.files_setup.convert_to_text(self.metadata, self.data_path, text_id, self.windows_tesseract_path, self.windows_poppler_path, force_ocr)
             
             # update the object's metadata
             if not(tmp_metadata is None):

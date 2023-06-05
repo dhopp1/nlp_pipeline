@@ -1,6 +1,10 @@
 
 # Change Log
 
+## 0.0.26
+### Added
+* ability to manually force OCR PDF conversion
+
 ## 0.0.25
 ### Fixed
 * better detect more OCR PDFs

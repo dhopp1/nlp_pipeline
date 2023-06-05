@@ -201,7 +201,7 @@ def detect_language(stringx):
     return detect(stringx)
     
         
-def convert_to_text(metadata, data_path, text_id, windows_tesseract_path = None, windows_poppler_path = None):
+def convert_to_text(metadata, data_path, text_id, windows_tesseract_path = None, windows_poppler_path = None, force_ocr = False):
     "convert a PDF or HTML file into raw text. In PDFs, new pages encoded with '[newpage]'"
     raw_path = metadata.loc[lambda x: x.text_id == text_id, "local_raw_filepath"].values[0]    
     
@@ -247,7 +247,8 @@ def convert_to_text(metadata, data_path, text_id, windows_tesseract_path = None,
                         (return_text.lower().count("\x01") / len(return_text) > 0.01) | # if poorly digitized and a lot of '\x01's
                         (return_text.lower().count("^") / len(return_text) > 0.0001) | 
                         (sum([1 if return_text[i] == return_text[i-1] == return_text[i-2] and return_text[i].isalpha() else 0 for i in range(2, len(return_text))]) / len(return_text) > 0.0009) | # many repeated letters is an error
-                        (eng_dict < 0.8) # high proportion of out of vocabulary words
+                        (eng_dict < 0.8) | # high proportion of out of vocabulary words
+                        (force_ocr) # manually force OCR
                     ): # force OCR
                         return_text = parse_ocr_pdf(data_path, raw_path, windows_tesseract_path, windows_poppler_path)
                         # remove temporary image files from OCR
