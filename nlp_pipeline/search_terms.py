@@ -4,6 +4,7 @@ from nltk.sentiment import SentimentIntensityAnalyzer
 from nltk.corpus import stopwords
 import re
 import itertools
+import os
 
 def gen_search_terms(processor, group_name, text_ids, search_terms_df, path_prefix, character_buffer = 100):
     "generate CSVs with information on search terms"
@@ -92,3 +93,29 @@ def gen_search_terms(processor, group_name, text_ids, search_terms_df, path_pref
         ).reset_index()
         
         count.to_csv(f"{processor.data_path}csv_outputs/search_terms_{group_name}_counts_by_{search_terms_df.columns[i]}.csv", index = False)
+        
+        
+def gen_aggregated_search_terms(processor, group_names, text_ids, search_terms_df, path_prefix, character_buffer = 100):
+    "aggregate search terms by group"
+    for i in range(len(group_names)):
+        # generate data
+        gen_search_terms(processor, f"temp_helper_{group_names[i]}", text_ids[i], search_terms_df, path_prefix, character_buffer = 100)
+    
+    # aggregate it
+    for j in range(len(search_terms.columns)):
+        for i in range(len(group_names)):
+            tmp_df = pd.read_csv(f"{processor.data_path}csv_outputs/search_terms_temp_helper_{group_names[i]}_counts_by_{search_terms.columns[j]}.csv")
+            tmp_df["group"] = group_names[i]
+            if i == 0:
+                df = tmp_df.copy()
+            else:
+                df = pd.concat([df, tmp_df], ignore_index = True, axis = 0)
+    
+        df = df.loc[:, ["group"] + list(df.columns[:-1])]
+        df.to_csv(f"{processor.data_path}csv_outputs/search_terms_grouped_by_{search_terms.columns[j]}.csv", index = False)
+    
+    # delete temporary files
+    for i in range(len(group_names)):
+        os.remove(f"{processor.data_path}csv_outputs/search_terms_temp_helper_{group_names[i]}_occurrences.csv")
+        for j in range(len(search_terms.columns)):
+            os.remove(f"{processor.data_path}csv_outputs/search_terms_temp_helper_{group_names[i]}_counts_by_{search_terms.columns[j]}.csv")

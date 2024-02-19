@@ -651,3 +651,14 @@ class nlp_processor:
             :character_buffer: int: how many characters on either side of the search term to gather for context
         """
         self.search_terms.gen_search_terms(self, group_name, text_ids, search_terms_df, path_prefix, character_buffer = 100)
+        
+    def gen_aggregated_search_terms(self, group_names, text_ids, search_terms_df, path_prefix, character_buffer = 100):
+        """"get information (context, sentiment, etc.) on occurrences of search terms in a selection of texts, aggregated by groups. E.g., for years, etc.
+        parameters:
+            :group_names: list[str]: a list of the names of the groups of texts, e.g., years, etc.
+            :text_ids: list[list[int]]: a list of list of text ids corresponding to the groups
+            :search_terms_df: Pandas DataFrame: dataframe with terms to look for. Can have multiple columns ending in most specific terms to search for. For e.g., groupings "grouping">"concept">"permutation"
+            :path_prefix: str: what the prefix of the files in the transformed_txt_files/ path is, leave blank for raw, untransformed text in the txt_files/ directory
+            :character_buffer: int: how many characters on either side of the search term to gather for context
+        """
+        self.search_terms.gen_aggregated_search_terms(self, group_names, text_ids, search_terms_df, path_prefix, character_buffer = 100)        
