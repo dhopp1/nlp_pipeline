@@ -628,3 +628,12 @@ class nlp_processor:
         plot_df = self.text_transformation.bertopic_visualize(self, model, model_name, method_name, plot_name, timestamps, presence_text_ids, presence_topic_ids, *args, **kwargs)
         print(f"plot saved to {self.data_path}bertopic_models/{model_name}/{plot_name}.*")
         return plot_df
+    
+    def replace_words(self, text_ids, replacement_list, path_prefix = ""):
+        """"replace words in the text files
+        parameters:
+            :text_ids: list[float]: single text_id or list of them to perform the transformation(s)            
+            :replacement_list: Pandas DataFrame: a dataframe where the first column is the term to be found (can be multi-word), and the second is the term to replace it with
+            :path_prefix: str: what the prefix of the files in the transformed_txt_files/ path is, leave blank for raw, untransformed text in the txt_files/ directory
+        """
+        self.text_transformation.replace_words(self, text_ids, replacement_list, path_prefix)

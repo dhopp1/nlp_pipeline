@@ -13,6 +13,7 @@ from sentence_transformers import SentenceTransformer
 from sklearn.feature_extraction.text import CountVectorizer
 import seaborn as sns
 import matplotlib.pyplot as plt
+import re
 
 # key between langdetect language ISO code and NLTK's names for snowball, stopwords, and entity detection
 nltk_langdetect_dict = {
@@ -403,4 +404,35 @@ def convert_utf8(processor, text_ids, which_file = "local_raw_filepath"):
         
         file = open(file_path, "w")
         file.write(str(stringx.encode("UTF-8")))
+        file.close()
+        
+def replace_words(processor, text_ids, replacement_list, path_prefix = ""):
+    "replace words/phrases in text files"
+    if (isinstance(text_ids, int)):
+        text_ids = [text_ids]
+    
+    # if no prefix, replace the terms in the "txt_files" directory
+    if path_prefix == "":
+        file_path_prefix = f"{processor.data_path}/txt_files/"
+    else:
+        file_path_prefix = f"{processor.data_path}/transformed_txt_files/{path_prefix}_"
+        
+    for text_id in text_ids:
+        file_path = f"{file_path_prefix}{text_id}.txt"
+        file = open(file_path, "r", encoding = "latin1")
+        stringx = file.read()
+        file.close()
+        
+        # do replacement
+        stringx = re.sub("  ", " ", stringx)
+        stringx = re.sub("   ", " ", stringx)
+        stringx = re.sub("    ", " ", stringx)
+        stringx = re.sub("     ", " ", stringx)
+        for i in range(len(replacement_list)):
+            term = replacement_list.iloc[i, 0]
+            replacement = replacement_list.iloc[i, 1]
+            stringx = re.sub(term, replacement, stringx)
+            
+        file = open(file_path, "w", encoding = "latin1")
+        file.write(stringx)
         file.close()
