@@ -1,3 +1,4 @@
+
 # nlp_pipeline
 Collection of NLP tools for processing and analyzing text data.
 
@@ -111,6 +112,24 @@ p, plot_df = processor.plot_summary_stats(
     title = "Plot Title"
 )
 
+# get data on search terms in the documents
+processor.gen_search_terms(
+	group_name = "all_documents",
+	text_ids = text_ids,
+	search_terms_df = pd.DataFrame({"theme": ["theme1", "theme1"], "permutation": ["word1", "word2"]}),
+	path_prefix = "all_transformed",
+	character_buffer = 100
+)
+
+# get data on search terms with multiple groups of documents in one file
+processor.gen_aggregated_search_terms(
+	group_names = ["2001", "2002"],
+	text_ids = [[1,2], [3,4]],
+	search_terms_df = search_terms_df,
+	path_prefix = "all_transformed",
+	character_buffer = 100
+)
+
 # get sentence-by-sentence sentiment report for a string or text_id
 sentiment_report = processor.gen_sentiment_report(text_id = 1) # to generate for a text_id
 sentiment_report = processor.gen_sentiment_report(stringx = "a new string.") # to generate for a new string
@@ -192,6 +211,8 @@ processor.visualize_bertopic_model(
 	- only English
 -  summary statistics (number of words, pages, numeric proportion, etc.)
 	- all languages
+- search term sentiment and context
+	- only English for sentiment, all languages for context
 -  	text similarity/clustering
 	- all languages  
 - topic modelling

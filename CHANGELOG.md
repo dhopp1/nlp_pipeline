@@ -1,9 +1,15 @@
 
 # Change Log
 
+## 0.0.27
+### Added
+* ability to convert texts to UTF-8 via the `convert_utf8` function
+* ability to replace words in the raw text files or transformed text files via the `replace_words` function
+* ability to search for terms and get their context and sentiment via the `gen_search_terms` and `gen_aggregated_search_terms` functions
+
 ## 0.0.26
 ### Added
-* ability to manually force OCR PDF conversion
+* ability to manually force OCR PDF conversion via the `force_ocr` parameter of the `convert_to_text` function
 
 ## 0.0.25
 ### Fixed
