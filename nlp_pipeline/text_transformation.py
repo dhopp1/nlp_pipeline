@@ -390,3 +390,17 @@ def bertopic_visualize(processor, model, model_name, method_name, plot_name, tim
         pass
     
     return plot_df
+
+def convert_utf8(processor, text_ids, which_file = "local_raw_filepath"):
+    "convert text(s) to UTF-8 by ID #"
+    if (isinstance(text_ids, int)):
+        text_ids = [text_ids]
+    for text_id in text_ids:
+        file_path = processor.metadata.loc[lambda x: x.text_id == text_id, which_file].values[0]
+        file = open(file_path, "r", encoding = "latin1")
+        stringx = file.read()
+        file.close()
+        
+        file = open(file_path, "w")
+        file.write(str(stringx.encode("UTF-8")))
+        file.close()

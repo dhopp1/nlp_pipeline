@@ -67,6 +67,10 @@ class nlp_processor:
             if not(tmp_metadata is None):
                 self.metadata = tmp_metadata
                 self.metadata.to_csv(f"{self.data_path}metadata.csv", index = False)
+                
+    def convert_utf8(self, text_ids, which_file = "local_raw_filepath"):
+        "convert text(s) to UTF-8 by ID #"
+        self.text_transformation.convert_utf8(self, text_ids, which_file)
 
     def convert_to_text(self, text_ids, force_ocr = False):
         "convert a pdf or html file to text. Pass either single text id or list of them. 'force_ocr' is whether or not to force ocr conversion of a pdf"
