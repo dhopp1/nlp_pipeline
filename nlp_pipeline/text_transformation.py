@@ -423,14 +423,23 @@ def replace_words(processor, text_ids, replacement_list, path_prefix = ""):
         stringx = file.read()
         file.close()
         
+        stringx = re.sub(re.escape("("), " ", stringx)
+        stringx = re.sub(re.escape(")"), " ", stringx)
+        
+        for punc in [x for x in ".,:;?!-"]:#"#[x for x in string.punctuation if x not in ["(", ")", "[", "]", "\\"]] + ["\n"] + ["\t"]:
+            term = f"\{punc}"
+            replacement = " " + punc
+            stringx = re.sub(term, replacement, stringx)
+        
         # do replacement
         stringx = re.sub("  ", " ", stringx)
         stringx = re.sub("   ", " ", stringx)
         stringx = re.sub("    ", " ", stringx)
         stringx = re.sub("     ", " ", stringx)
+        stringx = re.sub("\n", " ", stringx)
         for i in range(len(replacement_list)):
-            term = replacement_list.iloc[i, 0]
-            replacement = replacement_list.iloc[i, 1]
+            term = " " + replacement_list.iloc[i, 0] + " "
+            replacement = " " + replacement_list.iloc[i, 1] + " "
             stringx = re.sub(term, replacement, stringx)
             
         file = open(file_path, "w", encoding = "latin1")
