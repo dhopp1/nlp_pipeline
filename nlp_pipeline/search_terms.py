@@ -102,9 +102,9 @@ def gen_aggregated_search_terms(processor, group_names, text_ids, search_terms_d
         gen_search_terms(processor, f"temp_helper_{group_names[i]}", text_ids[i], search_terms_df, path_prefix, character_buffer = 100)
     
     # aggregate it
-    for j in range(len(search_terms.columns)):
+    for j in range(len(search_terms_df.columns)):
         for i in range(len(group_names)):
-            tmp_df = pd.read_csv(f"{processor.data_path}csv_outputs/search_terms_temp_helper_{group_names[i]}_counts_by_{search_terms.columns[j]}.csv")
+            tmp_df = pd.read_csv(f"{processor.data_path}csv_outputs/search_terms_temp_helper_{group_names[i]}_counts_by_{search_terms_df.columns[j]}.csv")
             tmp_df["group"] = group_names[i]
             if i == 0:
                 df = tmp_df.copy()
@@ -112,10 +112,10 @@ def gen_aggregated_search_terms(processor, group_names, text_ids, search_terms_d
                 df = pd.concat([df, tmp_df], ignore_index = True, axis = 0)
     
         df = df.loc[:, ["group"] + list(df.columns[:-1])]
-        df.to_csv(f"{processor.data_path}csv_outputs/search_terms_grouped_by_{search_terms.columns[j]}.csv", index = False)
+        df.to_csv(f"{processor.data_path}csv_outputs/search_terms_grouped_by_{search_terms_df.columns[j]}.csv", index = False)
     
     # delete temporary files
     for i in range(len(group_names)):
         os.remove(f"{processor.data_path}csv_outputs/search_terms_temp_helper_{group_names[i]}_occurrences.csv")
-        for j in range(len(search_terms.columns)):
-            os.remove(f"{processor.data_path}csv_outputs/search_terms_temp_helper_{group_names[i]}_counts_by_{search_terms.columns[j]}.csv")
+        for j in range(len(search_terms_df.columns)):
+            os.remove(f"{processor.data_path}csv_outputs/search_terms_temp_helper_{group_names[i]}_counts_by_{search_terms_df.columns[j]}.csv")

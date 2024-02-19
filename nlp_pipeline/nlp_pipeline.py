@@ -646,9 +646,13 @@ class nlp_processor:
         parameters:
             :group_name: str: what to call this group of texts
             :text_ids: list[int]: list of text ids to analyze
-            :search_terms_df: Pandas DataFrame: dataframe with terms to look for. Can have multiple columns ending in most specific terms to search for. For e.g., groupings "grouping">"concept">"permutation"
+            :search_terms_df: Pandas DataFrame: dataframe with terms to look for. Can have multiple columns ending in most specific terms to search for. For e.g., groupings "grouping">"concept">"permutation". Only the worsd in the rightmost column will actually be searched for, the others are for groupings/aggregations.
             :path_prefix: str: what the prefix of the files in the transformed_txt_files/ path is, leave blank for raw, untransformed text in the txt_files/ directory
             :character_buffer: int: how many characters on either side of the search term to gather for context
+        output:
+            the following pandas dataframes are written to csv_outputs/
+                :search_terms_{group_name}_counts_by_{column_name}.csv: A CSV with counts, count per 1000 words, number and share of texts where the term appears, and the sentiment of the sentence context and character buffer context. The former is the sentence where the term occurs, as well as the sentence prior and after. The latter is the text +- the number of characters of the integer chosen in the character_buffer parameter. This CSV will be duplicated for as many columns as are in the search_terms_df parameter.
+                :search_terms_{group_name}_occurrences.csv: A CSV with the context of each individual occurrence of the permutations in the search_terms_df parameter.
         """
         self.search_terms.gen_search_terms(self, group_name, text_ids, search_terms_df, path_prefix, character_buffer = 100)
         
@@ -660,5 +664,8 @@ class nlp_processor:
             :search_terms_df: Pandas DataFrame: dataframe with terms to look for. Can have multiple columns ending in most specific terms to search for. For e.g., groupings "grouping">"concept">"permutation"
             :path_prefix: str: what the prefix of the files in the transformed_txt_files/ path is, leave blank for raw, untransformed text in the txt_files/ directory
             :character_buffer: int: how many characters on either side of the search term to gather for context
+        output:
+            the following pandas dataframe is written to csv_outputs/
+                :search_terms_grouped_by_{column_name}.csv: A CSV with counts, count per 1000 words, number and share of texts where the term appears, and the sentiment of the sentence context and character buffer context. The difference to the output from the gen_search_terms() function is that multiple groups can be shown together in the same file, as a new "group" column is added to the output.
         """
         self.search_terms.gen_aggregated_search_terms(self, group_names, text_ids, search_terms_df, path_prefix, character_buffer = 100)        
