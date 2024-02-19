@@ -38,6 +38,9 @@ class nlp_processor:
         # making text transformations available
         self.text_transformation = import_module("nlp_pipeline.text_transformation")
         
+        # making search terms available
+        self.search_terms = import_module("nlp_pipeline.search_terms")
+        
         # making visualizations available
         self.visualizations = import_module("nlp_pipeline.visualizations")
         
@@ -637,3 +640,14 @@ class nlp_processor:
             :path_prefix: str: what the prefix of the files in the transformed_txt_files/ path is, leave blank for raw, untransformed text in the txt_files/ directory
         """
         self.text_transformation.replace_words(self, text_ids, replacement_list, path_prefix)
+        
+    def gen_search_terms(self, group_name, text_ids, search_terms_df, path_prefix, character_buffer = 100):
+        """"get information (context, sentiment, etc.) on occurrences of search terms in a selection of texts
+        parameters:
+            :group_name: str: what to call this group of texts
+            :text_ids: list[int]: list of text ids to analyze
+            :search_terms_df: Pandas DataFrame: dataframe with terms to look for. Can have multiple columns ending in most specific terms to search for. For e.g., groupings "grouping">"concept">"permutation"
+            :path_prefix: str: what the prefix of the files in the transformed_txt_files/ path is, leave blank for raw, untransformed text in the txt_files/ directory
+            :character_buffer: int: how many characters on either side of the search term to gather for context
+        """
+        self.search_terms.gen_search_terms(self, group_name, text_ids, search_terms_df, path_prefix, character_buffer = 100)
