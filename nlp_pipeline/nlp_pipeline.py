@@ -700,3 +700,18 @@ class nlp_processor:
                 :search_terms_{group_name}_second_level_counts.csv: A CSV with the second-level search term counts.
         """
         self.search_terms.gen_second_level_search_terms(self, group_name, second_level_search_terms_df)
+        
+    def gen_top_words(self, group_names, text_ids, path_prefix, per_1000 = True, top_n = 100, exclude_words = []):
+        """"create a list of top N words in different documents and groups of documents. If multiple groups are passed, the top_n word list will be constructed from the first group, with subsequent ones left joined to that word list.
+        parameters:
+            :group_names: list[str]: a list of the names of the groups of texts, e.g., years, etc.
+            :text_ids: list[list[int]]: a list of list of text ids corresponding to the groups. A list of lists must be passed.
+            :path_prefix: str: 
+            :per_1000: bool: whether to get the raw counts or per 1000 words
+            :top_n: int: how many top words to show
+            :exclude words: list[str]: list of words to exclude from the top words list
+        output:
+            the following pandas dataframe is written to csv_outputs/
+                :top_{top_n}_words.csv: A CSV with the second-level search term counts.
+        """
+        self.search_terms.gen_top_words(self, group_names, text_ids, path_prefix, per_1000, top_n, exclude_words)

@@ -199,3 +199,54 @@ def gen_second_level_search_terms(processor, group_name, second_level_search_ter
             second_level_occurrences = pd.concat([second_level_occurrences, tmp_occurrences], ignore_index = True)
             
     second_level_occurrences.to_csv(f"{processor.data_path}csv_outputs/search_terms_{group_name}_second_level_counts.csv", index = False)
+    
+def gen_top_words(processor, group_names, text_ids, path_prefix, per_1000 = True, top_n = 100, exclude_words = []):
+    "get a list of the top words. If more than one list of groups is passed, subsequent ones will look for counts on the word list created from the first group"
+    # word count dict function
+    def gen_word_count_df(stringx, exclude_words, n, per_1000 = False):
+        counts = dict()
+        words = stringx.split(" ")
+        
+        for word in words:
+            if word in counts:
+                counts[word] += 1
+            else:
+                counts[word] = 1
+        
+        if per_1000:
+            counts = {word:(count / len(words) * 1000) for word, count in counts.items() if (len(word) > 1) and not(word in exclude_words) and not(word.isnumeric())}
+        else:
+            counts = {word:count for word, count in counts.items() if (len(word) > 1) and not(word in exclude_words) and not(word.isnumeric())}
+        count_df = pd.DataFrame({"word": counts.keys(), "count": counts.values()}).sort_values("count", ascending = False).reset_index(drop = True).iloc[:n,:]
+        return count_df
+    
+    # create a corpus from text ids
+    def create_corpus(text_ids_i):
+        corpus = ""
+        for text_id in text_ids_i:
+            file_path = f"{processor.data_path}transformed_txt_files/{path_prefix}_{text_id}.txt"
+            file = open(file_path, "r", encoding = "latin1")
+            stringx = file.read()
+            file.close()
+            
+            corpus += stringx
+        return corpus
+    
+    # creating the initial word list from the first group
+    text_ids_i = text_ids[0]
+    corpus = create_corpus(text_ids_i)
+    count_df = gen_word_count_df(stringx = corpus, exclude_words = exclude_words, n = top_n, per_1000 = True)
+    count_df = count_df.rename(columns = {"count": group_names[0]})
+    
+    # adding counts of other columns
+    if len(text_ids) > 1:
+        for i in range(1, len(group_names)):
+            text_ids_i  = text_ids[i]
+            # create the corpus
+            corpus = create_corpus(text_ids_i)
+            tmp_count_df = gen_word_count_df(stringx = corpus, exclude_words = exclude_words, n = 999999999999999, per_1000 = True)
+            
+            count_df = count_df.merge(tmp_count_df, how = "left", on = "word")
+            count_df = count_df.rename(columns = {"count": group_names[i]})
+    count_df = count_df.fillna(0)
+    count_df.to_csv(f"{processor.data_path}csv_outputs/top_{top_n}_words.csv", index = False)

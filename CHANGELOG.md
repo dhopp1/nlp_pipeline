@@ -1,5 +1,9 @@
 
 # Change Log
+### 0.0.30
+### Added
+* ability to get top n word counts per 1000 words via the `gen_top_words` function
+
 ### 0.0.29
 ### Added
 * progress counters to all search term functions
