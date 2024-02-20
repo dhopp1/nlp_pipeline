@@ -71,6 +71,10 @@ class nlp_processor:
                 self.metadata = tmp_metadata
                 self.metadata.to_csv(f"{self.data_path}metadata.csv", index = False)
                 
+    def filter_pdf_pages(self, page_num_column):
+        "select certain pages of a pdf. Will edit the PDF file in place. Have a column denoting the page numbers to keep in the metadata file in format like '1:10,24:25,30,44,50:54'. Leave the entry blank to keep all pages."
+        self.text_transformation.filter_pdf_pages(self, page_num_column)        
+        
     def convert_utf8(self, text_ids, which_file = "local_raw_filepath"):
         "convert text(s) to UTF-8 by ID #"
         self.text_transformation.convert_utf8(self, text_ids, which_file)

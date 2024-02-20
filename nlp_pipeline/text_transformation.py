@@ -14,6 +14,7 @@ from sklearn.feature_extraction.text import CountVectorizer
 import seaborn as sns
 import matplotlib.pyplot as plt
 import re
+from PyPDF2 import PdfReader, PdfWriter
 
 # key between langdetect language ISO code and NLTK's names for snowball, stopwords, and entity detection
 nltk_langdetect_dict = {
@@ -445,3 +446,35 @@ def replace_words(processor, text_ids, replacement_list, path_prefix = ""):
         file = open(file_path, "w", encoding = "latin1")
         file.write(stringx)
         file.close()
+        
+        
+def filter_pdf_pages(processor, page_num_column):
+    "edit PDF files to select only certain pages, in a metadata column in format e.g. '2:10,12:20,23'"
+    # select out pages
+    for text_id in list(processor.metadata.text_id.values):
+        page_nums = processor.metadata.loc[lambda x: x.text_id == text_id, page_num_column].values[0]
+        
+        if (page_nums != "") & (not(pd.isnull(page_nums))):
+            final_pages = []
+            
+            for pages in page_nums.split(","):
+                if ":" in pages:
+                    start_i = int(pages.split(":")[0]) - 1
+                    end_i = int(pages.split(":")[1])
+                    final_pages += list(range(start_i, end_i))
+                else:
+                    final_pages.append(int(pages)-1)
+            # cut down PDF and replace
+            pdf_file_path = processor.metadata.loc[lambda x: x.text_id == text_id, "local_raw_filepath"].values[0]
+            file_base_name = pdf_file_path.replace(".pdf", "")
+        
+            pdf = PdfReader(pdf_file_path)
+            pages = final_pages
+            pdfWriter = PdfWriter()
+        
+            for page_num in pages:
+                pdfWriter.add_page(pdf.pages[page_num])
+        
+            with open(pdf_file_path.format(file_base_name), 'wb') as f:
+                pdfWriter.write(f)
+                f.close()
