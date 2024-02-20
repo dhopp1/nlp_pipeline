@@ -1,4 +1,5 @@
 
+
 # nlp_pipeline
 Collection of NLP tools for processing and analyzing text data.
 
@@ -35,6 +36,9 @@ processor.sync_local_metadata()
 # download some documents with metadata IDs 1, 2, and 3
 text_ids = [1,2,3]
 processor.download_text_id(text_ids)
+
+# edit the PDFs to be a selection of pages
+processor.filter_pdf_pages(page_num_column = "page_nums") # "page_nums" is then a column in the metadata file with values like "1:10,24,27:29", leave row blank to keep all pages of the PDF
 
 # convert the PDFs or HTMLs to .txt
 processor.convert_to_text(text_ids)
@@ -128,6 +132,19 @@ processor.gen_aggregated_search_terms(
 	search_terms_df = search_terms_df,
 	path_prefix = "all_transformed",
 	character_buffer = 100
+)
+
+# get a list of top n co-occurring word counts from a previous gen_search_terms run
+processor.gen_co_occurring_terms(
+	group_name = "all_documents", # must be the same as a previous gen_search_terms run
+	co_occurrence_terms_df = pd.DataFrame({"theme": ["theme1", "theme1"], "permutation": ["word1", ""]}), # for the second one, it will search the whole corpus of "theme1" permutations for co-occurring words
+	n_words = 50
+)
+
+# get counts of words that occur within the context of a previous gen_search_terms run
+processor.gen_second_level_search_terms(
+	group_name = "all_documents", # must be the same as a previous gen_search_terms run 
+	second_level_search_terms_df = pd.DataFrame({"theme": ["theme1", "theme1"], "permutation": ["word1", ""], "second_level_search_term": ["newword1", "newword2"})
 )
 
 # get sentence-by-sentence sentiment report for a string or text_id

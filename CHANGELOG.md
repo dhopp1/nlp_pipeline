@@ -1,6 +1,13 @@
 
 # Change Log
 
+## 0.0.28
+### Added
+* ability to select out certain PDF pages when processing via the `filter_pdf_pages` function
+* ability to clear directories via the `clear_directories` function
+* ability to find top co-occurring words via the `gen_co_occurring_terms` function
+* ability to get counts of second-level search terms via the `gen_second_level_search_terms` function
+
 ## 0.0.27
 ### Added
 * ability to convert texts to UTF-8 via the `convert_utf8` function
