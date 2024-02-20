@@ -40,7 +40,24 @@ def setup_directories(data_path):
     # path for reports, plots, and outputs
     if not os.path.isdir(f"{data_path}visual_outputs/"):
         os.makedirs(f"{data_path}visual_outputs/")
+        
+def clear_directories(processor, raw_files = True, txt_files = True, transformed_txt_files = True, csv_outputs = True, visual_outputs = True):
+    "clear the data in different directories"
+    def clear_directory(dir_path):
+        files = os.listdir(dir_path)
+        for file in files:
+            os.remove(f"{dir_path}{file}")
     
+    if raw_files:
+        clear_directory(f"{processor.data_path}raw_files/")
+    if txt_files:
+        clear_directory(f"{processor.data_path}txt_files/")
+    if transformed_txt_files:
+        clear_directory(f"{processor.data_path}transformed_txt_files/")
+    if csv_outputs:
+        clear_directory(f"{processor.data_path}csv_outputs/")
+    if visual_outputs:
+        clear_directory(f"{processor.data_path}visual_outputs/")
 
 def generate_metadata_file(data_path, metadata_addt_column_names):
     "generate an initial metadata file. metadata_addt_column_names is list of additional columns necessary for the analysis (publication date, etc.)"

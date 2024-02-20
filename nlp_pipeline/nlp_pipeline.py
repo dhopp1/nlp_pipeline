@@ -70,7 +70,11 @@ class nlp_processor:
             if not(tmp_metadata is None):
                 self.metadata = tmp_metadata
                 self.metadata.to_csv(f"{self.data_path}metadata.csv", index = False)
-                
+    
+    def clear_directories(self, raw_files = True, txt_files = True, transformed_txt_files = True, csv_outputs = True, visual_outputs = True):
+        "clear the data in different directories"
+        self.files_setup.clear_directories(self, raw_files, txt_files, transformed_txt_files, csv_outputs, visual_outputs)
+        
     def filter_pdf_pages(self, page_num_column):
         "select certain pages of a pdf. Will edit the PDF file in place. Have a column denoting the page numbers to keep in the metadata file in format like '1:10,24:25,30,44,50:54'. Leave the entry blank to keep all pages."
         self.text_transformation.filter_pdf_pages(self, page_num_column)        
