@@ -23,6 +23,7 @@ def gen_search_terms(processor, group_name, text_ids, search_terms_df, path_pref
     sentence_occurrences = pd.DataFrame(columns = list(search_terms_df.columns) + sentence_occurrences_columns)
     
     for i in range(len(search_terms_df)):
+        print(f"processing search terms for group {group_name}: {i+1}/{len(search_terms_df)}")
         word = search_terms_df.iloc[i, -1]
         
         for text_id in text_ids:
@@ -98,6 +99,7 @@ def gen_search_terms(processor, group_name, text_ids, search_terms_df, path_pref
 def gen_aggregated_search_terms(processor, group_names, text_ids, search_terms_df, path_prefix, character_buffer = 100):
     "aggregate search terms by group"
     for i in range(len(group_names)):
+        print(f"aggregated_search: processing search terms for group {i+1}/{len(group_names)}")
         # generate data
         gen_search_terms(processor, f"temp_helper_{group_names[i]}", text_ids[i], search_terms_df, path_prefix, character_buffer = 100)
     
@@ -127,6 +129,7 @@ def gen_co_occurring_terms(processor, group_name, co_occurrence_terms_df, n_word
     
     co_occurrence_terms_df = co_occurrence_terms_df.replace("", np.nan)
     for i in range(len(co_occurrence_terms_df)):
+        print(f"co-occurence search for group {group_name}: {i+1}/{len(co_occurrence_terms_df)}")
         most_specific_col = co_occurrence_terms_df.iloc[i, :].last_valid_index()
         most_specific_term = co_occurrence_terms_df.loc[i, most_specific_col]
         
@@ -170,6 +173,7 @@ def gen_second_level_search_terms(processor, group_name, second_level_search_ter
     
     second_level_search_terms_df = second_level_search_terms_df .replace("", np.nan)
     for i in range(len(second_level_search_terms_df)):
+        print(f"second-level search for group {group_name}: {i+1}/{len(second_level_search_terms_df)}")
         search_term = second_level_search_terms_df.iloc[i, -1]
         most_specific_col = second_level_search_terms_df.iloc[i, :-1].last_valid_index()
         most_specific_term = second_level_search_terms_df.loc[i, most_specific_col]

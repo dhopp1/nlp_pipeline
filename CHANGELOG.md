@@ -1,5 +1,8 @@
 
 # Change Log
+### 0.0.29
+### Added
+* progress counters to all search term functions
 
 ## 0.0.28
 ### Added
