@@ -119,3 +119,47 @@ def gen_aggregated_search_terms(processor, group_names, text_ids, search_terms_d
         os.remove(f"{processor.data_path}csv_outputs/search_terms_temp_helper_{group_names[i]}_occurrences.csv")
         for j in range(len(search_terms_df.columns)):
             os.remove(f"{processor.data_path}csv_outputs/search_terms_temp_helper_{group_names[i]}_counts_by_{search_terms_df.columns[j]}.csv")
+            
+            
+def gen_co_occurring_terms(processor, group_name, co_occurrence_terms_df, n_words = 50):
+    "get a list of the top words occurring alongside terms. Uses character_buffer of the gen_search_terms_function, which must be run first"
+    co_corpus = pd.read_csv(f"{processor.data_path}csv_outputs/search_terms_{group_name}_occurrences.csv")
+    
+    co_occurrence_terms_df = co_occurrence_terms_df.replace("", np.nan)
+    for i in range(len(co_occurrence_terms_df)):
+        most_specific_col = co_occurrence_terms_df.iloc[i, :].last_valid_index()
+        most_specific_term = co_occurrence_terms_df.loc[i, most_specific_col]
+        
+        # most specific permutations in this group
+        permutations = list(co_corpus.loc[lambda x: x[most_specific_col] == most_specific_term, co_occurrence_terms_df.columns[-1]].unique())
+
+        tmp_corpus = co_corpus.loc[lambda x: x[most_specific_col] == most_specific_term, "character_buffer_context"].reset_index(drop =True)
+        
+        corpus_string = ""
+        for j in range(len(tmp_corpus)):
+            corpus_string += tmp_corpus[j]
+        
+        corpus_string = corpus_string.replace(" | ", " ").replace("|", "").replace("  ", " ").replace("   ", " ").split(" ")
+        corpus_string = [x for x in corpus_string if x not in stopwords.words("english") + ["also"]]
+        counts = dict()
+        for word in corpus_string:
+            if word in counts:
+                counts[word] += 1
+            else:
+                counts[word] = 1
+        
+        counts = {word:count for word, count in counts.items() if (len(word) > 1) and not(word.isnumeric()) and not(word in permutations)}
+        tmp_counts = pd.DataFrame({
+            "co_occurrent_word": counts.keys(),
+            "count": counts.values()
+        }).sort_values(["count", "co_occurrent_word"], ascending = [False, True], axis = 0).reset_index(drop=True).loc[:n_words-1, :]
+        for col in co_occurrence_terms_df.columns:
+            tmp_counts[col] = co_occurrence_terms_df.loc[i, col]
+        tmp_counts = tmp_counts.loc[:, list(co_occurrence_terms_df.columns) + ["co_occurrent_word", "count"]]
+            
+        if i == 0:
+            co_occurrence = tmp_counts.copy()
+        else:
+            co_occurrence = pd.concat([co_occurrence, tmp_counts], ignore_index = True)
+    
+    co_occurrence.to_csv(f"{processor.data_path}csv_outputs/search_terms_{group_name}_co_occurrences.csv", index = False)

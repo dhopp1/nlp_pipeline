@@ -677,3 +677,15 @@ class nlp_processor:
                 :search_terms_grouped_by_{column_name}.csv: A CSV with counts, count per 1000 words, number and share of texts where the term appears, and the sentiment of the sentence context and character buffer context. The difference to the output from the gen_search_terms() function is that multiple groups can be shown together in the same file, as a new "group" column is added to the output.
         """
         self.search_terms.gen_aggregated_search_terms(self, group_names, text_ids, search_terms_df, path_prefix, character_buffer = 100)        
+
+    def gen_co_occurring_terms(self, group_name, co_occurrence_terms_df, n_words = 50):
+        """"get top co-occurring words alongside terms/groups generated from the gen_search_terms function, which must be run first. Context corpus comes from the character_buffer argument of that function.
+        parameters:
+            :group_name: str: Must correspond to the group name used in the gen_search_terms function
+            :co_occurrence_terms_df: Pandas DataFrame: dataframe with terms to look for. Can have multiple columns ending in most specific terms to search for. For e.g., groupings "grouping">"concept">"permutation". Leave a column blank to not consider it. I.e., entering a term for "grouping" and "concept" but not "permutation" will create a search corpus consisting of all permutations present under context.
+            :n_words: int: top N co-occurring words to show
+        output:
+            the following pandas dataframe is written to csv_outputs/
+                :search_terms_{group_name}_co_occurrences.csv: A CSV with counts, co-occurrent words and their counts.
+        """        
+        self.search_terms.gen_co_occurring_terms(self, group_name, co_occurrence_terms_df, n_words)
