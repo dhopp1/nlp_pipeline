@@ -163,3 +163,35 @@ def gen_co_occurring_terms(processor, group_name, co_occurrence_terms_df, n_word
             co_occurrence = pd.concat([co_occurrence, tmp_counts], ignore_index = True)
     
     co_occurrence.to_csv(f"{processor.data_path}csv_outputs/search_terms_{group_name}_co_occurrences.csv", index = False)
+    
+def gen_second_level_search_terms(processor, group_name, second_level_search_terms_df):
+    "get counts of words that appear within the subcorpus of matched search terms"
+    corpus = pd.read_csv(f"{processor.data_path}csv_outputs/search_terms_{group_name}_occurrences.csv")
+    
+    second_level_search_terms_df = second_level_search_terms_df .replace("", np.nan)
+    for i in range(len(second_level_search_terms_df)):
+        search_term = second_level_search_terms_df.iloc[i, -1]
+        most_specific_col = second_level_search_terms_df.iloc[i, :-1].last_valid_index()
+        most_specific_term = second_level_search_terms_df.loc[i, most_specific_col]
+        
+        tmp_corpus = corpus.loc[lambda x: x[most_specific_col] == most_specific_term, "character_buffer_context"].reset_index(drop =True)
+        
+        corpus_string = ""
+        for j in range(len(tmp_corpus)):
+            corpus_string += tmp_corpus[j]
+        
+        occurrences = len([x.start() for x in re.finditer(search_term, corpus_string)])
+        
+        tmp_occurrences = pd.DataFrame({
+            "count": occurrences
+        }, index = [0])
+        for col in second_level_search_terms_df.columns:
+            tmp_occurrences[col] = second_level_search_terms_df.loc[i, col]
+        tmp_occurrences = tmp_occurrences.loc[:, list(second_level_search_terms_df.columns) + ["count"]]
+        
+        if i == 0:
+            second_level_occurrences = tmp_occurrences.copy()
+        else:
+            second_level_occurrences = pd.concat([second_level_occurrences, tmp_occurrences], ignore_index = True)
+            
+    second_level_occurrences.to_csv(f"{processor.data_path}csv_outputs/search_terms_{group_name}_second_level_counts.csv", index = False)

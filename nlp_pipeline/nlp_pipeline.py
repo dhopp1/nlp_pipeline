@@ -687,5 +687,16 @@ class nlp_processor:
         output:
             the following pandas dataframe is written to csv_outputs/
                 :search_terms_{group_name}_co_occurrences.csv: A CSV with counts, co-occurrent words and their counts.
-        """        
+        """
         self.search_terms.gen_co_occurring_terms(self, group_name, co_occurrence_terms_df, n_words)
+        
+    def gen_second_level_search_terms(self, group_name, second_level_search_terms_df):
+        """"create sub-corpuses from the character_buffer contextual text from the gen_search_terms function, which must be run first. Then check those sub-corpuses for additional search terms.
+        parameters:
+            :group_name: str: Must correspond to the group name used in the gen_search_terms function
+            :second_level_search_terms_df: Pandas DataFrame: dataframe with terms to look for. Can have multiple columns ending in most specific terms to search for. For e.g., groupings "grouping">"concept">"permutation". Leave a column blank to not consider it. I.e., entering a term for "grouping" and "concept" but not "permutation" will create a search corpus consisting of all permutations present under context. Then with one final column corresponding to the term to search for in this sub-corpus.
+        output:
+            the following pandas dataframe is written to csv_outputs/
+                :search_terms_{group_name}_second_level_counts.csv: A CSV with the second-level search term counts.
+        """
+        self.search_terms.gen_second_level_search_terms(self, group_name, second_level_search_terms_df)
