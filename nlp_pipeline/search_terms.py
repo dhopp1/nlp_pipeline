@@ -235,7 +235,7 @@ def gen_top_words(processor, group_names, text_ids, path_prefix, per_1000 = True
     # creating the initial word list from the first group
     text_ids_i = text_ids[0]
     corpus = create_corpus(text_ids_i)
-    count_df = gen_word_count_df(stringx = corpus, exclude_words = exclude_words, n = top_n, per_1000 = True)
+    count_df = gen_word_count_df(stringx = corpus, exclude_words = exclude_words, n = top_n, per_1000 = per_1000)
     count_df = count_df.rename(columns = {"count": group_names[0]})
     
     # adding counts of other columns
@@ -244,7 +244,7 @@ def gen_top_words(processor, group_names, text_ids, path_prefix, per_1000 = True
             text_ids_i  = text_ids[i]
             # create the corpus
             corpus = create_corpus(text_ids_i)
-            tmp_count_df = gen_word_count_df(stringx = corpus, exclude_words = exclude_words, n = 999999999999999, per_1000 = True)
+            tmp_count_df = gen_word_count_df(stringx = corpus, exclude_words = exclude_words, n = 999999999999999, per_1000 = per_1000)
             
             count_df = count_df.merge(tmp_count_df, how = "left", on = "word")
             count_df = count_df.rename(columns = {"count": group_names[i]})
