@@ -1,6 +1,10 @@
 
 # Change Log
 
+### 0.0.33
+### Fixed
+* issue with `.doc` conversion
+
 ### 0.0.32
 ### Added
 * ability to convert `.docx` and `.doc` files to text
