@@ -216,13 +216,7 @@ def parse_html(html_path):
 
 def parse_word(doc_path):
     "parse a .docx or .doc file"
-    if platform.system() != "Windows":
-        return_text = str(textract.process(doc_path))[2:-1].replace("\\n", "\n").replace("\\","")
-    else:
-        try:
-            return_text = os.system(f'cmd /k "antiword {doc_path}"')
-        except:
-            return_text = ""
+    return_text = str(textract.process(doc_path))[2:-1].replace("\\n", "\n").replace("\\","")
             
     return return_text
 

@@ -1,6 +1,10 @@
 
 # Change Log
 
+### 0.0.35
+### Reversion
+* revert to version 0.0.32
+
 ### 0.0.34
 ### Fixed
 * issue with `.doc` conversion on Windows
