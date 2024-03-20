@@ -10,6 +10,7 @@ from PIL import Image
 import textract
 from langdetect import detect
 import os, glob, shutil
+import platform
 
 # English vocabulary for detecting poorly encoded PDFs
 english_dict = pd.read_csv("https://github.com/dwyl/english-words/raw/master/words_alpha.txt", header = None)
@@ -215,9 +216,9 @@ def parse_html(html_path):
 
 def parse_word(doc_path):
     "parse a .docx or .doc file"
-    try:
+    if platform.system() != "Windows":
         return_text = str(textract.process(doc_path))[2:-1].replace("\\n", "\n").replace("\\","")
-    except:
+    else:
         try:
             return_text = os.system(f'cmd /k "antiword {doc_path}"')
         except:

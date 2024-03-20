@@ -1,6 +1,10 @@
 
 # Change Log
 
+### 0.0.34
+### Fixed
+* issue with `.doc` conversion on Windows
+
 ### 0.0.33
 ### Fixed
 * issue with `.doc` conversion
