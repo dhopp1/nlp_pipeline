@@ -7,6 +7,7 @@ import platform
 from pdf2image import convert_from_path, pdfinfo_from_path
 from pathlib import Path
 from PIL import Image
+import textract
 from langdetect import detect
 import os, glob, shutil
 
@@ -212,6 +213,11 @@ def parse_html(html_path):
     
     return return_text
 
+def parse_word(doc_path):
+    "parse a .docx or .doc file"
+    return_text = str(textract.process(doc_path))[2:-1].replace("\\n", "\n").replace("\\","")
+    return return_text
+
 
 def detect_language(stringx):
     "determine the language of a string"
@@ -275,6 +281,8 @@ def convert_to_text(metadata, data_path, text_id, windows_tesseract_path = None,
                     return_text = ""
             elif ".html" in raw_path:
                 return_text = parse_html(raw_path)
+            elif ".docx" or ".doc" in raw_path:
+                return_text = parse_word(raw_path)
             elif ".txt" in raw_path:
                 file = open(f"{raw_path}", "r", encoding = "UTF-8") 
                 return_text = file.read()

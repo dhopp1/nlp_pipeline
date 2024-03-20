@@ -13,7 +13,9 @@ seaborn==0.11.2
 sentence_transformers==2.2.2
 snowballstemmer==2.1.0
 spacy==3.5.2
+textract==1.6.5
 wordcloud==1.8.2.2
 wordfreq==3.0.3
 # poppler (https://poppler.freedesktop.org/)
 # tesseract (https://github.com/UB-Mannheim/tesseract/wiki)
+# for .doc conversion, brew install antiwar or https://github.com/deanmalmgren/textract/issues/194#issuecomment-506065817 for windows

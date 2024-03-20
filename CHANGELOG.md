@@ -1,5 +1,10 @@
 
 # Change Log
+
+### 0.0.32
+### Added
+* ability to convert `.docx` and `.doc` files to text
+
 ### 0.0.31
 ### Fixed
 * fixed typo in gen_top_words function
