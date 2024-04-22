@@ -173,7 +173,7 @@ def parse_ocr_pdf(data_path, pdf_path, windows_tesseract_path = None, windows_po
         counter += 1
         
         # Create a file name to store the image
-        filename = f"{data_path}\page_{page_enumeration:03}.jpg"
+        filename = f"{data_path}/page_{page_enumeration:03}.jpg"
  
         # Save the image of the page in system
         page.save(filename, "JPEG")

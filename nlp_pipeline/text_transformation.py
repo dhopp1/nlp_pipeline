@@ -329,8 +329,8 @@ def bertopic_visualize(processor, model, model_name, method_name, plot_name, tim
     #document info of the model
     metadata = pd.read_csv(f"{processor.data_path}bertopic_models/model_metadata.csv")
     text_ids = eval(metadata.loc[lambda x: x.model_name == model_name, "text_ids"].values[0])
-    split_by_n_words = eval(metadata.loc[lambda x: x.model_name == model_name, "split_by_n_words"].values[0])
-    if split_by_n_words == None:
+    split_by_n_words = metadata.loc[lambda x: x.model_name == model_name, "split_by_n_words"].values[0]
+    if split_by_n_words == None or pd.isna(split_by_n_words):
         split_by_page = True
     else:
         split_by_page = False

@@ -1,6 +1,13 @@
 
 # Change Log
 
+### 0.0.36
+### Added
+* Added Docker support
+
+### Fixed
+* Fixed issue with BERTopic plots
+
 ### 0.0.35
 ### Reversion
 * revert to version 0.0.32

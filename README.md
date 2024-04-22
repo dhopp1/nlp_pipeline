@@ -234,3 +234,11 @@ processor.visualize_bertopic_model(
 	- all languages  
 - topic modelling
 	- most big languages, full list [here](https://github.com/google-research/bert/blob/master/multilingual.md)
+
+
+## Docker usage
+- You can build the image manually by downloading the `Dockerfile` in the repository and running: `docker build path_to_dockerfile/ -t <desired_image_name>`. If you want to use entity recognition, uncomment the desired languages in the Dockerfile
+- You can also pull the built image (with no entity language packs downloaded) from Docker Hub with `docker pull dhopp1/nlp_pipeline_lite`
+- Then run the container with `docker run -it -d --name <desired_container_name> -v "local_path/":"/app/corpus/" <desired_image_name>`
+- That will run the container and map a local directory to one on the container
+- Then run your script with `docker exec -t <desired_container_name> python /app/corpus/script.py`, remembering to set your `data_path` in the script to the container's naming convention, e.g., `data_path = "/app/corpus/"`
