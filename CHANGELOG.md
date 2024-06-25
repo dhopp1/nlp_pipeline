@@ -1,6 +1,10 @@
 
 # Change Log
 
+### 0.0.37
+### Added
+* Added .docx, .doc, .txt, and .csv support for downloading documents, and CSV support for converting to text (CSVs are converted to markdown tables)
+
 ### 0.0.36
 ### Added
 * Added Docker support

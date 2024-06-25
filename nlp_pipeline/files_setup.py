@@ -85,7 +85,7 @@ def download_document(metadata, data_path, text_id, web_filepath):
         web_filepath = web_filepath.split(",")[0] # may have multiple URLs stored in field, take only first (english)
         
         # first check if this file already downloaded
-        if not(os.path.isfile(f"{data_path}raw_files/{text_id}.html")) and not(os.path.isfile(f"{data_path}raw_files/{text_id}.pdf")) and not(os.path.isfile(f"{data_path}raw_files/{text_id}.txt")):
+        if not(os.path.isfile(f"{data_path}raw_files/{text_id}.txt")) and not(os.path.isfile(f"{data_path}raw_files/{text_id}.csv")) and not(os.path.isfile(f"{data_path}raw_files/{text_id}.doc")) and not(os.path.isfile(f"{data_path}raw_files/{text_id}.docx")) and not(os.path.isfile(f"{data_path}raw_files/{text_id}.html")) and not(os.path.isfile(f"{data_path}raw_files/{text_id}.pdf")) and not(os.path.isfile(f"{data_path}raw_files/{text_id}.txt")):
             try: # try downloading the file first
                 response = requests.get(web_filepath)
                 content_type = response.headers.get('content-type')
@@ -94,6 +94,14 @@ def download_document(metadata, data_path, text_id, web_filepath):
                     ext = ".pdf"
                 elif "text/html" in content_type:
                     ext = ".html"
+                elif "officedocument" in content_type:
+                    ext = ".docx"
+                elif "application/msword" in content_type:
+                    ext = ".doc"
+                elif "text/csv" in content_type:
+                    ext = ".csv"
+                elif "text/plain" in content_type:
+                    ext = ".txt"
                 else:
                     ext = ""
                 
@@ -220,6 +228,13 @@ def parse_word(doc_path):
             
     return return_text
 
+def parse_csv(doc_path):
+    "parse a .csv into a markdown file"
+    df = pd.read_csv(doc_path)
+    return_text = df.to_markdown(index=False)
+    
+    return return_text
+
 
 def detect_language(stringx):
     "determine the language of a string"
@@ -285,6 +300,8 @@ def convert_to_text(metadata, data_path, text_id, windows_tesseract_path = None,
                 return_text = parse_html(raw_path)
             elif ".docx" or ".doc" in raw_path:
                 return_text = parse_word(raw_path)
+            elif ".csv" in raw_path:
+                return_text = parse_csv(raw_path)
             elif ".txt" in raw_path:
                 file = open(f"{raw_path}", "r", encoding = "UTF-8") 
                 return_text = file.read()
