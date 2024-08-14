@@ -271,7 +271,10 @@ def convert_to_text(metadata, data_path, text_id, windows_tesseract_path = None,
                     eng_words = [x for x in alphas if x in english_dict]
                     
                     try:
-                        eng_dict = len(eng_words) / len(alphas)
+                        if len(alphas) == 0:
+                            eng_dict = 0 # if eng_dict == 0, then ocr will be forced
+                        else:
+                            eng_dict = len(eng_words) / len(alphas)
                     except:
                         eng_dict = 1.0
                 else:
