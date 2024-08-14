@@ -281,18 +281,24 @@ def convert_to_text(metadata, data_path, text_id, windows_tesseract_path = None,
                     eng_dict = 1.0
                 
                 try:
-                    if (
-                        (len(set(return_text.split("[newpage] "))) == 1) | # if only empties, scan, needs to be OCR converted.
-                        ((return_text.lower().count("/g") / len(return_text)) > 0.01) | # If bunch of "/G"s, greater than 1% of all the characters, encoding error, like review of maritime transport 2006
-                        (return_text.lower().count("_") / len(return_text) > 0.05) | 
-                        (return_text.lower().count("sqj") > 10) | # if poorly digitized and a lot of 'sqj's
-                        (return_text.lower().count("\x03") / len(return_text) > 0.01) | # if poorly digitized and a lot of '\x03's
-                        (return_text.lower().count("\x01") / len(return_text) > 0.01) | # if poorly digitized and a lot of '\x01's
-                        (return_text.lower().count("^") / len(return_text) > 0.0001) | 
-                        (sum([1 if return_text[i] == return_text[i-1] == return_text[i-2] and return_text[i].isalpha() else 0 for i in range(2, len(return_text))]) / len(return_text) > 0.0009) | # many repeated letters is an error
-                        (eng_dict < 0.8) | # high proportion of out of vocabulary words
-                        (force_ocr) # manually force OCR
-                    ): # force OCR
+                    #check to see if ocr should be used
+                    if len(return_text) == 0: #this stops below condition throwing an error
+                        use_ocr = True
+                    else:
+                        use_ocr = (
+                            (len(set(return_text.split("[newpage] "))) == 1) | # if only empties, scan, needs to be OCR converted.
+                            ((return_text.lower().count("/g") / len(return_text)) > 0.01) | # If bunch of "/G"s, greater than 1% of all the characters, encoding error, like review of maritime transport 2006
+                            (return_text.lower().count("_") / len(return_text) > 0.05) | 
+                            (return_text.lower().count("sqj") > 10) | # if poorly digitized and a lot of 'sqj's
+                            (return_text.lower().count("\x03") / len(return_text) > 0.01) | # if poorly digitized and a lot of '\x03's
+                            (return_text.lower().count("\x01") / len(return_text) > 0.01) | # if poorly digitized and a lot of '\x01's
+                            (return_text.lower().count("^") / len(return_text) > 0.0001) | 
+                            (sum([1 if return_text[i] == return_text[i-1] == return_text[i-2] and return_text[i].isalpha() else 0 for i in range(2, len(return_text))]) / len(return_text) > 0.0009) | # many repeated letters is an error
+                            (eng_dict < 0.8) | # high proportion of out of vocabulary words
+                            (force_ocr) # manually force OCR
+                        )
+                        
+                    if use_ocr: # force OCR
                         return_text = parse_ocr_pdf(data_path, raw_path, windows_tesseract_path, windows_poppler_path)
                         # remove temporary image files from OCR
                         for f in glob.glob(f"{data_path}*.jpg"):
