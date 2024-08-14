@@ -103,6 +103,8 @@ def download_document(metadata, data_path, text_id, web_filepath):
                     ext = ".csv"
                 elif "text/plain" in content_type:
                     ext = ".txt"
+                elif "image/jpeg" in content_type:
+                    ext = ".jpg"
                 else:
                     ext = ""
                 
@@ -236,6 +238,12 @@ def parse_csv(doc_path):
     
     return return_text
 
+def parse_jpg(jpg_path):
+	print("OCR conversion jpg") 
+	text = str(((pytesseract.image_to_string(Image.open(jpg_path)))))
+	return_text = text.replace("-\n", "")
+	return return_text
+
 
 def detect_language(stringx):
     "determine the language of a string"
@@ -316,6 +324,9 @@ def convert_to_text(metadata, data_path, text_id, windows_tesseract_path = None,
                 file = open(f"{raw_path}", "r", encoding = "UTF-8") 
                 return_text = file.read()
                 file.close()
+            elif ".jpg" in raw_path:
+                return_text = parse_jpg(raw_path)
+
             
             # write text file
             file = open(f"{data_path}txt_files/{text_id}.txt", "wb+")
