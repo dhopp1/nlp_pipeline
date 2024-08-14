@@ -298,7 +298,7 @@ def convert_to_text(metadata, data_path, text_id, windows_tesseract_path = None,
                     return_text = ""
             elif ".html" in raw_path:
                 return_text = parse_html(raw_path)
-            elif ".docx" or ".doc" in raw_path:
+            elif ".docx" in raw_path or ".doc" in raw_path:
                 return_text = parse_word(raw_path)
             elif ".csv" in raw_path:
                 return_text = parse_csv(raw_path)
