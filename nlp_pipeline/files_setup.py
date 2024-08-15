@@ -82,7 +82,7 @@ def generate_metadata_file(data_path, metadata_addt_column_names):
 def download_document(metadata, data_path, text_id, web_filepath):
     "download a file from a URL and update the metadata file"
     print("attempt"+ str(text_id))
-    print("attempt"+ web_filepath)
+    print("attempt"+ str(web_filepath))
 	
     if str(web_filepath) == "" or str(web_filepath) == "nan":
         return None
