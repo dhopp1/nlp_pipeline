@@ -110,6 +110,7 @@ def download_document(metadata, data_path, text_id, web_filepath):
                     ext = ".jpg"
                 elif web_filepath[-3:] == "mp3": # the mp3 content_type returns 'application/octet-stream' and not 'audio/mpeg' as expected
                     ext = ".mp3"
+			print(ext)
                 elif web_filepath[-3:] == "wav": 
                     ext = ".wav"
                 else:
@@ -117,6 +118,7 @@ def download_document(metadata, data_path, text_id, web_filepath):
                 
                 if ext != "":
                     file = open(f"{data_path}raw_files/{text_id}{ext}", "wb+")
+			print("writing content")
                     file.write(response.content)
                     file.close()
                     
@@ -312,7 +314,8 @@ def convert_to_text(metadata, data_path, text_id, windows_tesseract_path = None,
     raw_exists = type(raw_path) == str
     if raw_exists:
          raw_exists = raw_exists & (len(raw_path) > 0)
-    
+
+	print("raw_exists"+raw_exists)
     if raw_exists:
         # first check if this file already converted
         if not(os.path.isfile(f"{data_path}txt_files/{text_id}.txt")):
