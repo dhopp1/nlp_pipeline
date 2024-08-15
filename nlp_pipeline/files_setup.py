@@ -11,6 +11,9 @@ import textract
 from langdetect import detect
 import os, glob, shutil
 import platform
+from transformers import pipeline
+from pydub import AudioSegment
+import tempfile
 
 # English vocabulary for detecting poorly encoded PDFs
 english_dict = pd.read_csv("https://github.com/dwyl/english-words/raw/master/words_alpha.txt", header = None)
@@ -105,6 +108,10 @@ def download_document(metadata, data_path, text_id, web_filepath):
                     ext = ".txt"
                 elif "image/jpeg" in content_type:
                     ext = ".jpg"
+                elif "audio/mpeg" in content_type:
+                    ext = ".mp3"
+                elif "audio/wav" in content_type or "audio/x-wav" in content_type:
+                    ext = ".wav"
                 else:
                     ext = ""
                 
@@ -244,6 +251,53 @@ def parse_jpg(jpg_path):
 	return_text = text.replace("-\n", "")
 	return return_text
 
+def parse_wav(wav_path, model_name="openai/whisper-base"):
+    """
+    Transcribes an .wav file into text using a specified model from Hugging Face and returns text.
+
+    Parameters:
+    - wav_path (str): Path to the .wav file to be transcribed.
+    - model_name (str): Hugging Face model name for the STT task. Default is "openai/whisper-base".
+
+    Returns:
+    - Transcripted text from the wav
+    """
+    
+    # Load the pre-trained model from Hugging Face
+    asr = pipeline("automatic-speech-recognition", model=model_name)
+
+    # Transcribe the WAV audio file directly
+    return_text = asr(wav_path)["text"]
+
+    return(return_text)
+
+def parse_mp3(mp3_path, model_name="openai/whisper-base"):
+    """
+    Transcribes an .mp3 file into text using a specified model from Hugging Face and returns text.
+
+    Parameters:
+    - mp3_path (str): Path to the .mp3 file to be transcribed.
+    - model_name (str): Hugging Face model name for the STT task. Default is "openai/whisper-base".
+
+    Returns:
+    - Transcripted text from the mp3
+    """
+    # Convert MP3 to WAV format using pydub
+    audio = AudioSegment.from_mp3(mp3_path)
+    
+    # Use a temporary file to save the converted audio as WAV
+    with tempfile.NamedTemporaryFile(suffix=".wav") as tmp_wav_file:
+        audio.export(tmp_wav_file.name, format="wav")
+        
+        # Load the pre-trained model from Hugging Face
+        asr = pipeline("automatic-speech-recognition", model=model_name)
+
+        # Transcribe the WAV audio file directly
+        return_text = asr(tmp_wav_file.name)["text"]
+
+    return(return_text)
+
+
 
 def detect_language(stringx):
     "determine the language of a string"
@@ -326,6 +380,10 @@ def convert_to_text(metadata, data_path, text_id, windows_tesseract_path = None,
                 file.close()
             elif ".jpg" in raw_path:
                 return_text = parse_jpg(raw_path)
+            elif ".mp3" in raw_path:
+                return_text = parse_mp3(mp3_path=raw_path)
+            elif ".wav" in raw_path:
+                return_text = parse_wav(wav_path=raw_path)
 
             
             # write text file

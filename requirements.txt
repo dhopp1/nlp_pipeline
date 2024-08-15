@@ -6,6 +6,7 @@ nltk==3.5
 pandas==2.2.2
 pdf2image==1.16.2
 Pillow==10.3.0
+pydub==0.25.1
 pytesseract==0.3.10
 PyPDF2==3.0.1
 scikit-learn==1.4.2
@@ -14,6 +15,7 @@ sentence_transformers==2.7.0
 snowballstemmer==2.1.0
 spacy==3.7.4
 textract==1.6.5
+transformers==4.37.2
 wordcloud==1.9.3
 wordfreq==3.0.3
 # poppler (https://poppler.freedesktop.org/)
