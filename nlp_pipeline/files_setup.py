@@ -81,8 +81,9 @@ def generate_metadata_file(data_path, metadata_addt_column_names):
 
 def download_document(metadata, data_path, text_id, web_filepath):
     "download a file from a URL and update the metadata file"
-        print("attempt"+ text_id)
-	print("attempt"+ web_filepath)
+    print("attempt"+ text_id)
+    print("attempt"+ web_filepath)
+	
     if str(web_filepath) == "" or str(web_filepath) == "nan":
         return None
     else:
@@ -111,7 +112,7 @@ def download_document(metadata, data_path, text_id, web_filepath):
                     ext = ".jpg"
                 elif web_filepath[-3:] == "mp3": # the mp3 content_type returns 'application/octet-stream' and not 'audio/mpeg' as expected
                     ext = ".mp3"
-			print(ext)
+		    print(ext)
                 elif web_filepath[-3:] == "wav": 
                     ext = ".wav"
                 else:
@@ -119,7 +120,7 @@ def download_document(metadata, data_path, text_id, web_filepath):
                 
                 if ext != "":
                     file = open(f"{data_path}raw_files/{text_id}{ext}", "wb+")
-			print("writing content")
+		    print("writing content"+ f"{data_path}raw_files/{text_id}{ext}")
                     file.write(response.content)
                     file.close()
                     
