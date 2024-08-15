@@ -120,7 +120,7 @@ def download_document(metadata, data_path, text_id, web_filepath):
                 
                 if ext != "":
                     file = open(f"{data_path}raw_files/{text_id}{ext}", "wb+")
-		    print("writing content"+ f"{data_path}raw_files/{text_id}{ext}")
+                    print("writing content"+ f"{data_path}raw_files/{text_id}{ext}")
                     file.write(response.content)
                     file.close()
                     
@@ -317,7 +317,7 @@ def convert_to_text(metadata, data_path, text_id, windows_tesseract_path = None,
     if raw_exists:
          raw_exists = raw_exists & (len(raw_path) > 0)
 
-	print("raw_exists"+raw_exists)
+    print("raw_exists"+raw_exists)
     if raw_exists:
         # first check if this file already converted
         if not(os.path.isfile(f"{data_path}txt_files/{text_id}.txt")):
