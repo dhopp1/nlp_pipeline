@@ -108,9 +108,9 @@ def download_document(metadata, data_path, text_id, web_filepath):
                     ext = ".txt"
                 elif "image/jpeg" in content_type:
                     ext = ".jpg"
-                elif "audio/mpeg" in content_type:
+                elif web_filepath[-3:] == "mp3": # the mp3 content_type returns 'application/octet-stream' and not 'audio/mpeg' as expected
                     ext = ".mp3"
-                elif "audio/wav" in content_type or "audio/x-wav" in content_type:
+                elif web_filepath[-3:] == "wav": 
                     ext = ".wav"
                 else:
                     ext = ""
