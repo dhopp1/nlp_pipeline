@@ -112,7 +112,7 @@ def download_document(metadata, data_path, text_id, web_filepath):
                     ext = ".jpg"
                 elif web_filepath[-3:] == "mp3": # the mp3 content_type returns 'application/octet-stream' and not 'audio/mpeg' as expected
                     ext = ".mp3"
-		    print(ext)
+                    print(ext)
                 elif web_filepath[-3:] == "wav": 
                     ext = ".wav"
                 else:
