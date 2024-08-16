@@ -89,7 +89,18 @@ def download_document(metadata, data_path, text_id, web_filepath):
         web_filepath = web_filepath.splitlines()[0] #may have multiple URLS stored on separate lines, take only first
         
         # first check if this file already downloaded
-        if not(os.path.isfile(f"{data_path}raw_files/{text_id}.txt")) and not(os.path.isfile(f"{data_path}raw_files/{text_id}.csv")) and not(os.path.isfile(f"{data_path}raw_files/{text_id}.doc")) and not(os.path.isfile(f"{data_path}raw_files/{text_id}.docx")) and not(os.path.isfile(f"{data_path}raw_files/{text_id}.html")) and not(os.path.isfile(f"{data_path}raw_files/{text_id}.pdf")) and not(os.path.isfile(f"{data_path}raw_files/{text_id}.txt")):
+        if (
+                not(os.path.isfile(f"{data_path}raw_files/{text_id}.txt"))
+                and not(os.path.isfile(f"{data_path}raw_files/{text_id}.csv"))
+                and not(os.path.isfile(f"{data_path}raw_files/{text_id}.doc"))
+                and not(os.path.isfile(f"{data_path}raw_files/{text_id}.docx"))
+                and not(os.path.isfile(f"{data_path}raw_files/{text_id}.html"))
+                and not(os.path.isfile(f"{data_path}raw_files/{text_id}.pdf"))
+                and not(os.path.isfile(f"{data_path}raw_files/{text_id}.txt"))
+                and not(os.path.isfile(f"{data_path}raw_files/{text_id}.jpg"))
+                and not(os.path.isfile(f"{data_path}raw_files/{text_id}.mp3"))
+                and not(os.path.isfile(f"{data_path}raw_files/{text_id}.wav"))
+                ):
             try: # try downloading the file first
                 response = requests.get(web_filepath)
                 content_type = response.headers.get('content-type')
@@ -381,15 +392,15 @@ def convert_to_text(metadata, data_path, text_id, windows_tesseract_path = None,
             elif ".jpg" in raw_path:
                 return_text = parse_jpg(raw_path)
             elif ".mp3" in raw_path:
-				try:
-					return_text = parse_mp3(mp3_path=raw_path)
-				except:
-					return_text = ""
+                try:
+                    return_text = parse_mp3(mp3_path=raw_path)
+                except:
+                    return_text = ""
             elif ".wav" in raw_path:
-				try:
-                	return_text = parse_wav(wav_path=raw_path)
-				except:
-					return_text = ""
+                try:
+                    return_text = parse_wav(wav_path=raw_path)
+                except:
+                    return_text = ""
 
             
             # write text file
