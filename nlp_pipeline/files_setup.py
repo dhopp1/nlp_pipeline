@@ -117,7 +117,6 @@ def download_document(metadata, data_path, text_id, web_filepath):
                 
                 if ext != "":
                     file = open(f"{data_path}raw_files/{text_id}{ext}", "wb+")
-                    print("writing content"+ f"{data_path}raw_files/{text_id}{ext}")
                     file.write(response.content)
                     file.close()
                     
