@@ -382,9 +382,15 @@ def convert_to_text(metadata, data_path, text_id, windows_tesseract_path = None,
             elif ".jpg" in raw_path:
                 return_text = parse_jpg(raw_path)
             elif ".mp3" in raw_path:
-                return_text = parse_mp3(mp3_path=raw_path)
+				try:
+					return_text = parse_mp3(mp3_path=raw_path)
+				except:
+					return_text = ""
             elif ".wav" in raw_path:
-                return_text = parse_wav(wav_path=raw_path)
+				try:
+                	return_text = parse_wav(wav_path=raw_path)
+				except:
+					return_text = ""
 
             
             # write text file
