@@ -11,7 +11,7 @@ import textract
 from langdetect import detect
 import os, glob, shutil
 import platform
-from transformers import pipeline
+from transformers import pipeline, AutoModelForCTC, AutoTokenizer
 from pydub import AudioSegment
 import tempfile
 
@@ -296,13 +296,34 @@ def parse_mp3(mp3_path, model_name="openai/whisper-base"):
     # Convert MP3 to WAV format using pydub
     audio = AudioSegment.from_mp3(mp3_path)
     
+    
+    # if asr not already loaded, then load it
+    if 'asr' not in globals():
+    
+        # Define the directory where the model will be saved
+        save_directory = "./automatic-speech-recognition-models/"+model_name
+    
+        # Create the directory if it doesn't exist
+        if not os.path.exists(save_directory):
+            os.makedirs(save_directory)
+      
+        # Check if the model exists in the specified directory
+        if os.listdir(save_directory):
+            print(f"Loading model from {save_directory}")
+            model = AutoModelForCTC.from_pretrained(save_directory)
+            tokenizer = AutoTokenizer.from_pretrained(save_directory)
+            asr = pipeline("automatic-speech-recognition", model=model, tokenizer=tokenizer)
+        else:
+            print(f"Model not found in {save_directory}, downloading and saving it.")
+            asr = pipeline("automatic-speech-recognition", model=model_name)
+            asr.model.save_pretrained(save_directory)
+            asr.tokenizer.save_pretrained(save_directory)
+
+
     # Use a temporary file to save the converted audio as WAV
     with tempfile.NamedTemporaryFile(suffix=".wav") as tmp_wav_file:
         audio.export(tmp_wav_file.name, format="wav")
         
-        # Load the pre-trained model from Hugging Face
-        asr = pipeline("automatic-speech-recognition", model=model_name)
-
         # Transcribe the WAV audio file directly
         return_text = asr(tmp_wav_file.name)["text"]
 
