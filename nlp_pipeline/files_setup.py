@@ -262,6 +262,27 @@ def parse_jpg(jpg_path):
 	return_text = text.replace("-\n", "")
 	return return_text
 
+def load_asr(model_name):
+    "load an automatic speech recognition model from huggingface"
+    # Define the directory where the model will be saved
+    save_directory = "./automatic-speech-recognition-models/"+model_name
+
+    # Create the directory if it doesn't exist
+    if not os.path.exists(save_directory):
+        os.makedirs(save_directory)
+  
+    # Check if the model exists in the specified directory
+    if os.listdir(save_directory):
+        print(f"Loading model from {save_directory}")
+        asr = pipeline("automatic-speech-recognition", model=save_directory)
+    else:
+        print(f"Model not found in {save_directory}, downloading and saving it.")
+        asr = pipeline("automatic-speech-recognition", model=model_name)
+        # and save it for future use
+        asr.save_pretrained(save_directory)
+
+    return(asr)
+
 def parse_wav(wav_path, model_name="openai/whisper-base"):
     """
     Transcribes an .wav file into text using a specified model from Hugging Face and returns text.
@@ -274,8 +295,9 @@ def parse_wav(wav_path, model_name="openai/whisper-base"):
     - Transcripted text from the wav
     """
     
-    # Load the pre-trained model from Hugging Face
-    asr = pipeline("automatic-speech-recognition", model=model_name)
+    # if asr nor loaded then load it
+    if 'asr' not in globals():
+        asr = load_asr(model_name=model_name)
 
     # Transcribe the WAV audio file directly
     return_text = asr(wav_path)["text"]
@@ -297,28 +319,9 @@ def parse_mp3(mp3_path, model_name="openai/whisper-base"):
     audio = AudioSegment.from_mp3(mp3_path)
     
     
-    # if asr not already loaded, then load it
+    # if asr nor loaded then load it
     if 'asr' not in globals():
-    
-        # Define the directory where the model will be saved
-        save_directory = "./automatic-speech-recognition-models/"+model_name
-    
-        # Create the directory if it doesn't exist
-        if not os.path.exists(save_directory):
-            os.makedirs(save_directory)
-      
-        # Check if the model exists in the specified directory
-        if os.listdir(save_directory):
-            print(f"Loading model from {save_directory}")
-            model = AutoModelForCTC.from_pretrained(save_directory)
-            tokenizer = AutoTokenizer.from_pretrained(save_directory)
-            asr = pipeline("automatic-speech-recognition", model=model, tokenizer=tokenizer)
-        else:
-            print(f"Model not found in {save_directory}, downloading and saving it.")
-            asr = pipeline("automatic-speech-recognition", model=model_name)
-            asr.model.save_pretrained(save_directory)
-            asr.tokenizer.save_pretrained(save_directory)
-
+        asr = load_asr(model_name=model_name)
 
     # Use a temporary file to save the converted audio as WAV
     with tempfile.NamedTemporaryFile(suffix=".wav") as tmp_wav_file:
