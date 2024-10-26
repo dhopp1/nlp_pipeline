@@ -1,6 +1,7 @@
 import pandas as pd
 import requests
-from PyPDF2 import PdfReader
+from PyPDF2 import PdfReader ###replacig with PyMuPDF
+import fitz  # PyMuPDF
 from bs4 import BeautifulSoup
 import pytesseract
 import platform
@@ -14,6 +15,7 @@ import platform
 from transformers import pipeline, AutoModelForCTC, AutoTokenizer
 from pydub import AudioSegment
 import tempfile
+
 
 # English vocabulary for detecting poorly encoded PDFs
 english_dict = pd.read_csv("https://github.com/dwyl/english-words/raw/master/words_alpha.txt", header = None)
@@ -101,8 +103,21 @@ def download_document(metadata, data_path, text_id, web_filepath):
                 and not(os.path.isfile(f"{data_path}raw_files/{text_id}.mp3"))
                 and not(os.path.isfile(f"{data_path}raw_files/{text_id}.wav"))
                 ):
+            print(f"{data_path}raw_files/{text_id}")
             try: # try downloading the file first
                 response = requests.get(web_filepath)
+                if response.status_code == 403:
+                    print("Failed to access URL: 403 Forbidden, retrying")
+                    headers = {
+                                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36"
+                                }
+                    response = requests.get(web_filepath, headers=headers)
+                    if response.status_code == 200:
+                        print("Success")
+                    else:
+                        print(f"Failed to access URL. Status code: {response.status_code}")
+                    
+                
                 content_type = response.headers.get('content-type')
                 
                 if "application/pdf" in content_type:
@@ -121,6 +136,8 @@ def download_document(metadata, data_path, text_id, web_filepath):
                     ext = ".jpg"
                 elif web_filepath[-3:] == "mp3": # the mp3 content_type returns 'application/octet-stream' and not 'audio/mpeg' as expected
                     ext = ".mp3"
+                elif web_filepath[-3:] == "mp4":
+                    ext = ".mp4"
                 elif web_filepath[-3:] == "wav": 
                     ext = ".wav"
                 else:
@@ -157,6 +174,21 @@ def parse_pdf(pdf_path):
             return_text += "[newpage] " + reader.pages[i].extract_text()
         
     return return_text
+
+def parse_pdf(pdf_path):
+    "parse a pdf and return text string"
+    # Open the PDF file
+    doc = fitz.open(pdf_path)
+    return_text = ""
+    
+    # Iterate over each page in the PDF
+    for page_num in range(doc.page_count):
+        page = doc.load_page(page_num)  # Load each page
+        return_text += "[newpage] " + page.get_text("text")  # Extract the text content of the page
+
+    return return_text
+
+
 
 def parse_ocr_pdf(data_path, pdf_path, windows_tesseract_path = None, windows_poppler_path = None):
     """convert a scanned PDF to text and return text string. From https://www.geeksforgeeks.org/python-reading-contents-of-pdf-using-ocr-optical-character-recognition/
@@ -300,11 +332,11 @@ def parse_wav(wav_path, model_name="openai/whisper-base"):
         asr = load_asr(model_name=model_name)
 
     # Transcribe the WAV audio file directly
-    return_text = asr(wav_path)["text"]
+    return_text = asr(wav_path, compression_ratio_threshold=1.35)["text"]
 
     return(return_text)
 
-def parse_mp3(mp3_path, model_name="openai/whisper-base"):
+def parse_mp3(raw_path, model_name="openai/whisper-base"):
     """
     Transcribes an .mp3 file into text using a specified model from Hugging Face and returns text.
 
@@ -316,8 +348,10 @@ def parse_mp3(mp3_path, model_name="openai/whisper-base"):
     - Transcripted text from the mp3
     """
     # Convert MP3 to WAV format using pydub
-    audio = AudioSegment.from_mp3(mp3_path)
-    
+    if ".mp3" in raw_path:
+        audio = AudioSegment.from_mp3(raw_path)
+    elif ".mp4" in raw_path:
+        audio = AudioSegment.from_file(raw_path, format="mp4")
     
     # if asr nor loaded then load it
     if 'asr' not in globals():
@@ -351,6 +385,7 @@ def convert_to_text(metadata, data_path, text_id, windows_tesseract_path = None,
     if raw_exists:
         # first check if this file already converted
         if not(os.path.isfile(f"{data_path}txt_files/{text_id}.txt")):
+            print(f"{data_path}txt_files/{text_id}.txt")
             # pdf file
             if ".pdf" in raw_path:
                 try:
@@ -395,7 +430,6 @@ def convert_to_text(metadata, data_path, text_id, windows_tesseract_path = None,
                             (eng_dict < 0.8) | # high proportion of out of vocabulary words
                             (force_ocr) # manually force OCR
                         )
-                        
                     if use_ocr: # force OCR
                         return_text = parse_ocr_pdf(data_path, raw_path, windows_tesseract_path, windows_poppler_path)
                         # remove temporary image files from OCR
@@ -415,9 +449,9 @@ def convert_to_text(metadata, data_path, text_id, windows_tesseract_path = None,
                 file.close()
             elif ".jpg" in raw_path:
                 return_text = parse_jpg(raw_path)
-            elif ".mp3" in raw_path:
+            elif ".mp3" in raw_path or ".mp4" in raw_path:
                 try:
-                    return_text = parse_mp3(mp3_path=raw_path)
+                    return_text = parse_mp3(raw_path=raw_path)
                 except:
                     return_text = ""
             elif ".wav" in raw_path:

@@ -18,6 +18,11 @@ textract==1.6.5
 transformers==4.37.2
 wordcloud==1.9.3
 wordfreq==3.0.3
+
+
+
 # poppler (https://poppler.freedesktop.org/)
 # tesseract (https://github.com/UB-Mannheim/tesseract/wiki)
 # for .doc conversion, brew install antiword or https://github.com/deanmalmgren/textract/issues/194#issuecomment-506065817 for windows
+
+# extract requires pip install pip==24.0
