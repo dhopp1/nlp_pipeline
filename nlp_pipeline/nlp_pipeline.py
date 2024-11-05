@@ -137,14 +137,10 @@ class nlp_processor:
             :stemmer: if choosing to stem, nltk stemmer. E.g., nltk.stem.snowball.SnowballStemmer("english"), or string of "snowball" or "lancaster" for one of these. Lancaster only works in english
         """
         path_prefix += "_"
-        
-        print(len(text_ids))
-        
+                
         if type(text_ids) != list:
             text_ids = [text_ids]
-            
-        print(len(text_ids))
-            
+
         counter = 1
         for text_id in text_ids:
             
@@ -485,7 +481,6 @@ class nlp_processor:
             counter += 1
             
             txt_path = f"{self.data_path}transformed_txt_files/{path_prefix}{text_id}.txt"
-            #orig_txt_path = f"{self.data_path}txt_files/{text_id}.txt" # for n_pages
             orig_txt_path = self.metadata.loc[lambda x: x.text_id == text_id, "local_txt_filepath"].values[0]
 
             language = self.metadata.loc[lambda x: x.text_id == text_id, "detected_language"].values[0]

@@ -1,6 +1,5 @@
 import pandas as pd
 import requests
-from PyPDF2 import PdfReader ###replacig with PyMuPDF
 import fitz  # PyMuPDF
 from bs4 import BeautifulSoup
 import pytesseract
@@ -15,7 +14,6 @@ import platform
 from transformers import pipeline, AutoModelForCTC, AutoTokenizer
 from pydub import AudioSegment
 import tempfile
-
 
 # English vocabulary for detecting poorly encoded PDFs
 english_dict = pd.read_csv("https://github.com/dwyl/english-words/raw/master/words_alpha.txt", header = None)
@@ -106,6 +104,7 @@ def download_document(metadata, data_path, text_id, web_filepath):
             print(f"{data_path}raw_files/{text_id}")
             try: # try downloading the file first
                 response = requests.get(web_filepath)
+                # if forbidden, try again with a different header
                 if response.status_code == 403:
                     print("Failed to access URL: 403 Forbidden, retrying")
                     headers = {
@@ -134,7 +133,7 @@ def download_document(metadata, data_path, text_id, web_filepath):
                     ext = ".txt"
                 elif "image/jpeg" in content_type:
                     ext = ".jpg"
-                elif web_filepath[-3:] == "mp3": # the mp3 content_type returns 'application/octet-stream' and not 'audio/mpeg' as expected
+                elif web_filepath[-3:] == "mp3": # the mp3 content_type returns 'application/octet-stream'
                     ext = ".mp3"
                 elif web_filepath[-3:] == "mp4":
                     ext = ".mp4"
@@ -161,19 +160,6 @@ def download_document(metadata, data_path, text_id, web_filepath):
                         return None
                 except:
                     return None
-            
-        
-def parse_pdf(pdf_path):
-    "parse a pdf and return text string"
-    reader = PdfReader(pdf_path)
-    return_text = ""
-    if any(["OceScanCompression" in key for key in reader.metadata.keys()]):
-        return_text = "[newpage] "
-    else:
-        for i in range(len(reader.pages)):
-            return_text += "[newpage] " + reader.pages[i].extract_text()
-        
-    return return_text
 
 def parse_pdf(pdf_path):
     "parse a pdf and return text string"
@@ -187,8 +173,6 @@ def parse_pdf(pdf_path):
         return_text += "[newpage] " + page.get_text("text")  # Extract the text content of the page
 
     return return_text
-
-
 
 def parse_ocr_pdf(data_path, pdf_path, windows_tesseract_path = None, windows_poppler_path = None):
     """convert a scanned PDF to text and return text string. From https://www.geeksforgeeks.org/python-reading-contents-of-pdf-using-ocr-optical-character-recognition/

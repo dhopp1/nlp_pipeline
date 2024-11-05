@@ -106,14 +106,13 @@ def gen_spacy_entity_lang_dict(dictionary, lang):
 def lower(stringx):
     "lower case the text"
     return stringx.lower()
-  
 
 def replace_accents(stringr):
     "remove unusual characters, currency symbols, and replace accented characters"
     return unidecode(stringr)
 
-
 def remove_headers_and_footers(stringx):
+    "removes headers and footers, that is, repeated text at the bottom or top of all pages. Keeps first header and last footer"
     # Split the content by [newpage]
     sections = stringx.split('[newpage]')
     
@@ -121,14 +120,14 @@ def remove_headers_and_footers(stringx):
     if len(sections) < 3:
         return stringx  # No headers/footers to remove if there's less than 2 sections
 
-    # Identify header (first line of the first section) and footer (first line of the last section)
+    # Identify header (first line of the first section) and footer (last line of the last section)
     header = None
     for section in sections[1:]:
         if section.strip():
             header = re.sub(r'\d+', '', section.strip().split('\n')[0])
             break
         
-    # Identify footer (first line of the last section if not empty)
+    # Identify footer (last line of the last section if not empty)
     footer = re.sub(r'\d+', '', sections[-1].strip().split('\n')[-1]) if sections[-1].strip() else None
 
     # Process each section
@@ -169,6 +168,7 @@ def remove_headers_and_footers(stringx):
 
 
 def remove_urls(stringx):
+    "removes urls based on elements that either start with http or www. "
     url_pattern = r"http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+|www\.[a-zA-Z0-9./]+"
     stringx = re.sub(url_pattern, "", stringx)
     return stringx
@@ -190,6 +190,12 @@ def replace_ligatures(stringx):
     return stringx
 
 
+# this is a list of periods/dots that we do not want to replace with | because they are not sentences
+abbreviations = ['h.e.', 'h. e.', 'e.g.', 'i.e.', 'etc.', 'vs.', 'p.m.', 'a.m.', 'dr.', 'mr.', 'mrs.', 'ms.', 
+                'jr.', 'sr.', ' st.', ' no.', 'co.', 'ltd.', 'inc.', 'prof.', 'gen.', 'col.', 'lt.', 'capt.', 
+                'maj.', 'rev.', 'u.s.', 'cf.', 'et al.', 'ibid.', 'op.', 'cit.', 'vol.', 'fig.', 'ch.', 'ed.', 
+                'esq.', 'sec.']
+    
 def replace_newline_period(stringx):
     "replace new line characters, new page characters, and periods with |. Also remove multiple white spaces"
     
@@ -202,15 +208,9 @@ def replace_newline_period(stringx):
     # remove multiple whitespace
     stringx = " ".join(stringx.split())
 
-    # this is a list of dots that we do not want to remove
-    abbreviations = ['h.e.', 'h. e.', 'e.g.', 'i.e.', 'etc.', 'vs.', 'p.m.', 'a.m.', 'dr.', 'mr.', 'mrs.', 'ms.', 
-                    'jr.', 'sr.', 'st.', 'no.', 'co.', 'ltd.', 'inc.', 'prof.', 'gen.', 'col.', 'lt.', 'capt.', 
-                    'maj.', 'rev.', 'u.s.', 'cf.', 'et al.', 'ibid.', 'op.', 'cit.', 'vol.', 'fig.', 'ch.', 'ed.', 
-                    'esq.', 'sec.']
-
     for abbr in abbreviations:
-        # Escape periods for regex, and replace with a placeholder
-        replacement = abbr.replace(".", "#pl#")
+        # replace abbreviations with empty string
+        replacement = abbr.replace(".", "")
         stringx = re.sub(re.escape(abbr), replacement, stringx)
 
     # replace all periods with |, including a space so the words can be found independently of the period
@@ -232,12 +232,6 @@ def replace_period(stringx):
     # remove multiple whitespace
     stringx = " ".join(stringx.split())
     
-    # this is a list of periods that we want to replace with nothing
-    abbreviations = ['h.e.', 'h. e.', 'e.g.', 'i.e.', 'etc.', 'vs.', 'p.m.', 'a.m.', 'dr.', 'mr.', 'mrs.', 'ms.', 
-                    'jr.', 'sr.', 'st.', 'no.', 'co.', 'ltd.', 'inc.', 'prof.', 'gen.', 'col.', 'lt.', 'capt.', 
-                    'maj.', 'rev.', 'u.s.', 'cf.', 'et al.', 'ibid.', 'op.', 'cit.', 'vol.', 'fig.', 'ch.', 'ed.', 
-                    'esq.', 'sec.']
-
     for abbr in abbreviations:
         # Escape periods for regex, and replace with a placeholder
         replacement = abbr.replace(".", "")
@@ -258,8 +252,6 @@ def replace_with_dict(stringx, replace_map):
     for find, replace in replace_map.items():
         stringx = stringx.replace(find, replace)
     return stringx
-
-
     
 def remove_punctuation(stringx):
     "remove punctuation, except |s, replace quotation marks apostophes brackets, commas, colons, and semicolons with nothing. dashes and slashes with spaces"
@@ -268,10 +260,8 @@ def remove_punctuation(stringx):
     stringx = stringx.translate(str.maketrans('', '', '"#\'(),/:;?@[]^`{}~”“’;•'))
     replace_with_space = '!.?$%*+-<=>\\_~'
     stringx = stringx.translate(str.maketrans(replace_with_space, ' '*len(replace_with_space)))
-    
     return stringx
 
-    
 def drop_numbers(stringx):
     "Remove all numbers"
     stringx = re.sub(r'\d+', '', stringx)
@@ -357,9 +347,9 @@ def gen_sentiment_report(stringx, sentiment_analyzer = SentimentIntensityAnalyze
     stringx = remove_punctuation(stringx)
     
     string_list = stringx.split("|")
+    # keep only strings which are more than 3 chracters, more than two words, and is not numeric
     string_list = [x for x in string_list if (len(x) > 3) & (len(x.split(" ")) > 2) & (not(x.isnumeric()))]
     sentiment_list = [get_single_sentiment(x, sentiment_analyzer)["compound"] for x in string_list]
- 
     
     sentiment_report = pd.DataFrame({
         "sentence_number": list(range(1,len(string_list)+1)),
