@@ -1,6 +1,14 @@
 
 # Change Log
 
+### 0.1.0
+### Added
+* Merged PR [5](https://github.com/dhopp1/nlp_pipeline/pull/5)
+* Added JPEG and MP3/MP4 support
+
+### Fxed
+* Various bug fixes for when downloading HTML files and determining when to use OCR
+
 ### 0.0.37
 ### Added
 * Added .docx, .doc, .txt, and .csv support for downloading documents, and CSV support for converting to text (CSVs are converted to markdown tables)

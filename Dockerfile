@@ -9,6 +9,7 @@ RUN apt-get install tesseract-ocr -y
 RUN apt-get install antiword
 
 # install required python libraries
+RUN pip install --upgrade pip==24.0
 RUN pip install -r https://raw.githubusercontent.com/dhopp1/nlp_pipeline/main/requirements.txt
 RUN pip install --ignore-installed six
 RUN pip install nlp-pipeline
