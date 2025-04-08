@@ -1,6 +1,10 @@
 
 # Change Log
 
+### 0.1.1
+### Added
+* Added parsing of Excel files to markdown text
+
 ### 0.1.0
 ### Added
 * Merged PR [5](https://github.com/dhopp1/nlp_pipeline/pull/5)
