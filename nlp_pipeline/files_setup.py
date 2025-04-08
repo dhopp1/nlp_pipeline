@@ -539,7 +539,7 @@ def convert_to_text(
                 return_text = parse_word(raw_path)
             elif ".csv" in raw_path:
                 return_text = parse_csv(raw_path)
-            elif (".xlsx" in raw_path) or (".xlsx" in raw_path):
+            elif (".xlsx" in raw_path) or (".xls" in raw_path):
                 return_text = parse_xlsx(raw_path)
             elif ".txt" in raw_path:
                 file = open(f"{raw_path}", "r", encoding="UTF-8")

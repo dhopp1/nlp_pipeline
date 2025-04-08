@@ -1,6 +1,10 @@
 
 # Change Log
 
+### 0.1.2
+### Fixed
+* Bug fix for detecting .xls files 
+
 ### 0.1.1
 ### Added
 * Added parsing of Excel files to markdown text
@@ -10,7 +14,7 @@
 * Merged PR [5](https://github.com/dhopp1/nlp_pipeline/pull/5)
 * Added JPEG and MP3/MP4 support
 
-### Fxed
+### Fixed
 * Various bug fixes for when downloading HTML files and determining when to use OCR
 
 ### 0.0.37
