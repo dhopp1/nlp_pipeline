@@ -1,6 +1,10 @@
 
 # Change Log
 
+### 0.1.3
+### Added
+* Ability to convert .pptx files
+
 ### 0.1.2
 ### Fixed
 * Bug fix for detecting .xls files 

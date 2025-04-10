@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="nlp_pipeline",
-    version="0.1.2",
+    version="0.1.3",
     author="Daniel Hopp",
     author_email="daniel.hopp1@gmail.com",
     description="Pipelines and management structure for NLP analysis of a corpus of texts",

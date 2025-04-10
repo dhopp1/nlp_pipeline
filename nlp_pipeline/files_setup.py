@@ -7,6 +7,7 @@ import platform
 from pdf2image import convert_from_path, pdfinfo_from_path
 from pathlib import Path
 from PIL import Image
+from pptx import Presentation
 import textract
 from langdetect import detect
 import os, glob, shutil
@@ -314,6 +315,20 @@ def parse_word(doc_path):
     return return_text
 
 
+def parse_pptx(doc_path):
+    "parse a .pptx file"
+    prs = Presentation(doc_path)
+    text = ""
+
+    for slide in prs.slides:
+        text += "\n[newpage]\n"
+        for shape in slide.shapes:
+            if hasattr(shape, "text"):
+                text += shape.text + "\n"
+
+    return text
+
+
 def parse_csv(doc_path):
     "parse a .csv into a markdown file"
     df = pd.read_csv(doc_path)
@@ -541,6 +556,8 @@ def convert_to_text(
                 return_text = parse_csv(raw_path)
             elif (".xlsx" in raw_path) or (".xls" in raw_path):
                 return_text = parse_xlsx(raw_path)
+            elif ".pptx" in raw_path:
+                return_text = parse_pptx(raw_path)
             elif ".txt" in raw_path:
                 file = open(f"{raw_path}", "r", encoding="UTF-8")
                 return_text = file.read()
