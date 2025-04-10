@@ -422,7 +422,7 @@ def parse_mp3(raw_path, model_name="openai/whisper-base"):
         audio.export(tmp_wav_file.name, format="wav")
 
         # Transcribe the WAV audio file directly
-        return_text = asr(tmp_wav_file.name)["text"]
+        return_text = asr(tmp_wav_file.name, return_timestamps=True)["text"]
 
     return return_text
 

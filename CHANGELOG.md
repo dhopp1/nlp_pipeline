@@ -1,6 +1,10 @@
 
 # Change Log
 
+### 0.1.4
+### Fixed
+* Bug fix for longer mp3 and mp4 files
+
 ### 0.1.3
 ### Added
 * Ability to convert .pptx files
