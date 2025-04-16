@@ -126,6 +126,8 @@ def download_document(metadata, data_path, text_id, web_filepath):
             and not (os.path.isfile(f"{data_path}raw_files/{text_id}.txt"))
             and not (os.path.isfile(f"{data_path}raw_files/{text_id}.jpg"))
             and not (os.path.isfile(f"{data_path}raw_files/{text_id}.mp3"))
+            and not (os.path.isfile(f"{data_path}raw_files/{text_id}.mp4"))
+            and not (os.path.isfile(f"{data_path}raw_files/{text_id}.m4a"))
             and not (os.path.isfile(f"{data_path}raw_files/{text_id}.wav"))
         ):
             print(f"{data_path}raw_files/{text_id}")
@@ -169,6 +171,8 @@ def download_document(metadata, data_path, text_id, web_filepath):
                     ext = ".mp4"
                 elif web_filepath[-3:] == "wav":
                     ext = ".wav"
+                elif web_filepath[-3:] == "m4a":
+                    ext = ".m4a"
                 else:
                     ext = ""
 
@@ -412,6 +416,8 @@ def parse_mp3(raw_path, model_name="openai/whisper-base"):
         audio = AudioSegment.from_mp3(raw_path)
     elif ".mp4" in raw_path:
         audio = AudioSegment.from_file(raw_path, format="mp4")
+    elif ".m4a" in raw_path:
+        audio = AudioSegment.from_file(raw_path, format="m4a")
 
     # if asr nor loaded then load it
     if "asr" not in globals():
@@ -564,7 +570,7 @@ def convert_to_text(
                 file.close()
             elif ".jpg" in raw_path:
                 return_text = parse_jpg(raw_path)
-            elif ".mp3" in raw_path or ".mp4" in raw_path:
+            elif ".mp3" in raw_path or ".mp4" in raw_path or ".m4a" in raw_path:
                 try:
                     return_text = parse_mp3(raw_path=raw_path)
                 except:
