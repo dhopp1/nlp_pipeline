@@ -1,6 +1,10 @@
 
 # Change Log
 
+### 0.1.6
+### Added
+* Ability to exclude matches in search by passing `match_exclusion` parameter to `gen_search_terms` function
+
 ### 0.1.4
 ### Fixed
 * Bug fix for longer mp3 and mp4 files
