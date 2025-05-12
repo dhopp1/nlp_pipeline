@@ -1,6 +1,10 @@
 
 # Change Log
 
+### 0.1.7
+### Fixed
+* Bug fix for remove punctuation to actually replace with a space
+
 ### 0.1.6
 ### Added
 * Ability to exclude matches in search by passing `match_exclusion` parameter to `gen_search_terms` function

@@ -298,12 +298,15 @@ def replace_with_dict(stringx, replace_map):
 def remove_punctuation(stringx):
     "remove punctuation, except |s, replace quotation marks apostophes brackets, commas, colons, and semicolons with nothing. dashes and slashes with spaces"
     stringx = stringx.replace(" & ", " and ").replace("&", " and")
-    # delete these punctuation
-    stringx = stringx.translate(str.maketrans("", "", "\"#'(),/:;?@[]^`{}~”“’;•"))
-    replace_with_space = "!.?$%*+-<=>\\_~"
+
+    # Define all punctuation marks to be replaced with a space
+    all_punctuation = "\"#'(),/:;?@[]^`{}~”“’;•"
+
+    # Replace all specified punctuation marks with a space
     stringx = stringx.translate(
-        str.maketrans(replace_with_space, " " * len(replace_with_space))
+        str.maketrans(all_punctuation, " " * len(all_punctuation))
     )
+
     return stringx
 
 
