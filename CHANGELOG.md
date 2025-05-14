@@ -1,6 +1,10 @@
 
 # Change Log
 
+### 0.1.8
+### Added
+* Added additional punctuation to replace punctuation with spaces
+
 ### 0.1.7
 ### Fixed
 * Bug fix for remove punctuation to actually replace with a space
