@@ -132,20 +132,14 @@ def download_document(metadata, data_path, text_id, web_filepath):
         ):
             print(f"{data_path}raw_files/{text_id}")
             try:  # try downloading the file first
-                response = requests.get(web_filepath)
-                # if forbidden, try again with a different header
-                if response.status_code == 403:
-                    print("Failed to access URL: 403 Forbidden, retrying")
-                    headers = {
-                        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36"
-                    }
-                    response = requests.get(web_filepath, headers=headers)
-                    if response.status_code == 200:
-                        print("Success")
-                    else:
-                        print(
-                            f"Failed to access URL. Status code: {response.status_code}"
-                        )
+                headers = {
+                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36"
+                }
+                response = requests.get(web_filepath, headers=headers)
+                if response.status_code == 200:
+                    print("Success")
+                else:
+                    print(f"Failed to access URL. Status code: {response.status_code}")
 
                 content_type = response.headers.get("content-type")
 
