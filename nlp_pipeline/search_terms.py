@@ -210,27 +210,42 @@ def gen_search_terms(
     for i in range(len(search_terms_df.columns)):
         agg_columns = list(search_terms_df.columns[: i + 1])
 
-        count = (
-            pre_agg_counts.groupby(agg_columns)
-            .apply(
-                lambda s: pd.Series(
-                    {
-                        "count": s["count"].sum(),
-                        "count_per_1000_words": s["count"].sum()
-                        / s["n_words"].sum()
-                        * 1000,
-                        "number_of_texts_present": s["text_id"].nunique(),
-                        "share_of_texts_present": s["text_id"].nunique()
-                        / len(text_ids),
-                        "sentence_sentiment": s["sentence_sentiment"].mean(),
-                        "character_buffer_sentiment": s[
-                            "character_buffer_sentiment"
-                        ].mean(),
-                    }
+        try:
+            count = (
+                pre_agg_counts.groupby(agg_columns)
+                .apply(
+                    lambda s: pd.Series(
+                        {
+                            "count": s["count"].sum(),
+                            "count_per_1000_words": s["count"].sum()
+                            / s["n_words"].sum()
+                            * 1000,
+                            "number_of_texts_present": s["text_id"].nunique(),
+                            "share_of_texts_present": s["text_id"].nunique()
+                            / len(text_ids),
+                            "sentence_sentiment": s["sentence_sentiment"].mean(),
+                            "character_buffer_sentiment": s[
+                                "character_buffer_sentiment"
+                            ].mean(),
+                        }
+                    )
                 )
+                .reset_index()
             )
-            .reset_index()
-        )
+        except:
+            count = pd.DataFrame(
+                columns=[
+                    "grouping",
+                    "concept",
+                    "permutation",
+                    "count",
+                    "count_per_1000_words",
+                    "number_of_texts_present",
+                    "share_of_texts_present",
+                    "sentence_sentiment",
+                    "character_buffer_sentiment",
+                ]
+            )
 
         count.to_csv(
             f"{processor.data_path}csv_outputs/search_terms_{group_name}_counts_by_{search_terms_df.columns[i]}.csv",

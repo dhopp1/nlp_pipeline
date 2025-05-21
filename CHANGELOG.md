@@ -1,6 +1,10 @@
 
 # Change Log
 
+### 0.1.10
+### Fixed
+* Bug fix for search terms if no values found
+
 ### 0.1.8
 ### Added
 * Added additional punctuation to replace punctuation with spaces
